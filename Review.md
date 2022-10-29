@@ -45,3 +45,7 @@ Fees:
 
 Token contract:
 - What is the purpose of the empty receive function: `receive() external payable { }`
+- Is the below line going to change to something else (I assume not as there shouldn't be any special treatment for Polygon, but I might be wrong):
+  ```
+  IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(); //input polyrouter
+  ```
