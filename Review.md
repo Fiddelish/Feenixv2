@@ -48,4 +48,11 @@ Questions and comments about `_transfer` function:
   ```
   Why do we need tokens balance on the contract itself? Aren't we swapping against Liquidity Pool?
 
-
+`swapBack` function:
+- It requires some clarifications
+  - what is its role?
+  - why we return if `totalTokensToSwap` is 100?
+  ```
+  if(contractBalance == 0 || totalTokensToSwap == 100) {return;}
+  ```
+- it is pretty short, so instead of asking line by line questions, we can simply discuss it during our chat
