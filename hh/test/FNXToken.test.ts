@@ -12,11 +12,13 @@ describe("FNXToken contract", function () {
     let owner: SignerWithAddress;
     let addr1: SignerWithAddress;
     let addr2: SignerWithAddress;
+    let addr3: SignerWithAddress;
+    let addr4: SignerWithAddress;
     let addrs: SignerWithAddress[];
 
     beforeEach(async function () {
         // Get the ContractFactory and Signers here.
-        [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
+        [owner, addr1, addr2, addr3, addr4, ...addrs] = await ethers.getSigners();
         FNX = await ethers.getContractFactory("FNXToken");
         fnx = await FNX.deploy();
         await fnx.deployed();
@@ -32,19 +34,26 @@ describe("FNXToken contract", function () {
 
     describe("Transactions", function () {
 
-        it("Should transfer tokens between accounts", async function () {
+        it("Should output limitsInEffect", async function() {
+            const limits = await fnx.limitsInEffect({gasLimit: GAS_LIMIT});
+            const ta = await fnx.tradingActive({gasLimit: GAS_LIMIT});
+            const excludedFromFees = await fnx._isExcludedFromFees(addr2.address, {gasLimit: GAS_LIMIT});
+            console.log(`Limits in effect: ${limits}; trading active: ${ta}; excluded from fees: ${excludedFromFees}`);
+        });
+
+        it("Should transfer from owner, but fail between accounts (trading not active)", async function () {
             const ownerBalance = await fnx.balanceOf(owner.address, {gasLimit: GAS_LIMIT});
 
             // Transfer 500 tokens from owner to addr1
-            await fnx.transfer(addr1.address, 500, {gasLimit: GAS_LIMIT});
-            const addr1Balance = await fnx.balanceOf(addr1.address, {gasLimit: GAS_LIMIT});
-            expect(addr1Balance).to.equal(500);
+            await fnx.transfer(addr3.address, 500, {gasLimit: GAS_LIMIT});
+            const addr3Balance = await fnx.balanceOf(addr3.address, {gasLimit: GAS_LIMIT});
+            expect(addr3Balance).to.equal(500);
 
             // Transfer 500 tokens from addr1 to addr2
             // We use .connect(signer) to send a transaction from another account
-            await fnx.connect(addr1).transfer(addr2.address, 500, {gasLimit: GAS_LIMIT});
-            const addr2Balance = await fnx.balanceOf(addr2.address, {gasLimit: GAS_LIMIT});
-            expect(addr2Balance).to.equal(500);
+            await expect(
+                fnx.connect(addr3).transfer(addr4.address, 500, {gasLimit: GAS_LIMIT})
+            ).to.be.revertedWith("Trading is not active.");
         });
 
         it("Should fail if sender doesn’t have enough tokens", async function () {
