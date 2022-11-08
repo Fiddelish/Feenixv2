@@ -530,19 +530,20 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
     ) external;
 }
 
-contract FNXToken is ERC20, Ownable {
+contract Token is ERC20, Ownable {
     
     IUniswapV2Router02 public immutable uniswapV2Router;
     address public immutable uniswapV2Pair;
 
     bool private swapping;
 
-    address payable public StakingWallet = payable(0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
-    address payable public MarketingWallet = payable(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
+    address payable public StakingWallet = payable(address(0));//StakeWallet
+    address payable public MarketingWallet = payable(address(0)); //m wallet
+    address payable public BurnAdress = payable (address(0)); //input 0x00000000dead
     address public contractAddress = address(this);
 
     uint256 public maxTransactionAmount =  5000000000000e9; 
-    uint256 public swapTokensAtAmount = 100;
+    uint256 public swapTokensAtAmount = 10000000000;
 
     bool public limitsInEffect = true;
     bool public tradingActive = false;
@@ -558,10 +559,12 @@ contract FNXToken is ERC20, Ownable {
     uint256 public buyTotalFees;
     uint256 public buyMarketingFee;
     uint256 public buyStakingFee;
+    uint256 public buyBurnFee;
 
     uint256 public sellTotalFees;
     uint256 public sellMarketingFee;
     uint256 public sellStakingFee;
+    uint256 public sellBurnFee;
 
     uint256 public tokensForMarketing;
     uint256 public tokensForStaking;
@@ -578,10 +581,11 @@ contract FNXToken is ERC20, Ownable {
     event SetAutomatedMarketMakerPair(address indexed pair, bool indexed value);
     event MarketingWalletUpdated(address indexed newWallet, address indexed oldWallet);
     event StakingWalletUpdated(address indexed newWallet, address indexed oldWallet);
+    event BurnAdressUpdated(address indexed newWallet, address indexed oldWallet);
 
-    constructor() ERC20("Project Feenix", "FNX") {
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff); // Polygon
-        // IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D); // ETH
+    constructor() ERC20("FeenixV2", "FNX") {
+
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff);
 
         excludeFromMaxTransaction(address(_uniswapV2Router), true);
         excludeFromMaxWallet(address(_uniswapV2Router), true);
@@ -594,19 +598,23 @@ contract FNXToken is ERC20, Ownable {
 
         uint256 _buyMarketingFee = 3;
         uint256 _buyStakingFee = 3;
+        uint256 _buyBurnfee = 0;
 
         uint256 _sellMarketingFee = 3;
         uint256 _sellStakingFee = 3;
+        uint256 _sellBurnfee = 0;
 
         uint256 totalSupply = 700000000000000e9;
 
         buyMarketingFee = _buyMarketingFee;
         buyStakingFee = _buyStakingFee;
-        buyTotalFees = buyMarketingFee + buyStakingFee;
+        buyBurnFee = _buyBurnfee;
+        buyTotalFees = buyMarketingFee + buyStakingFee + buyBurnFee;
 
         sellMarketingFee = _sellMarketingFee;
         sellStakingFee = _sellStakingFee;
-        sellTotalFees = sellMarketingFee + sellStakingFee;
+        sellBurnFee = _sellBurnfee;
+        sellTotalFees = sellMarketingFee + sellStakingFee + sellBurnFee;
 
         excludeFromFees(owner(), true);
         excludeFromFees(address(this), true);
@@ -633,24 +641,20 @@ contract FNXToken is ERC20, Ownable {
 
     }
 
-
     function enableTrading() external onlyOwner {
         tradingActive = true;
         launchedAt = block.number;
     }
-
 
     function areLimitsInEffect(bool limits) external onlyOwner returns (bool){
         limitsInEffect = limits;
         return limits;
     }
 
-
     function disableTransferDelay() external onlyOwner returns (bool){
         transferDelayEnabled = false;
         return true;
     }
-
 
     function updateSwapTokensAtAmount(uint256 newAmount) external onlyOwner returns (bool){
         swapTokensAtAmount = newAmount;
@@ -674,17 +678,19 @@ contract FNXToken is ERC20, Ownable {
         swapEnabled = enabled;
     }
 
-    function updateBuyFees(uint256 _MarketingFee, uint256 _StakingFee) external onlyOwner {
+    function updateBuyFees(uint256 _MarketingFee, uint256 _StakingFee, uint256 _BurnFee) external onlyOwner {
         buyMarketingFee = _MarketingFee;
         buyStakingFee = _StakingFee;
-        buyTotalFees = buyMarketingFee + buyStakingFee;
+        buyBurnFee = _BurnFee;
+        buyTotalFees = buyMarketingFee + buyStakingFee + buyBurnFee;
         require(buyTotalFees <= 6, "Must keep fees at 6% or less");
     }
 
-    function updateSellFees(uint256 _MarketingFee, uint256 _StakingFee) external onlyOwner {
+    function updateSellFees(uint256 _MarketingFee, uint256 _StakingFee, uint256 _BurnFee) external onlyOwner {
         sellMarketingFee = _MarketingFee;
         sellStakingFee = _StakingFee;
-        sellTotalFees = sellMarketingFee + sellStakingFee;
+        sellBurnFee = _BurnFee;
+        sellTotalFees = sellMarketingFee + sellStakingFee + sellBurnFee;
         require(sellTotalFees <= 6, "Must keep fees at 6% or less");
     }
 
@@ -715,6 +721,10 @@ contract FNXToken is ERC20, Ownable {
 
     function updateStakingWallet(address newWallet) external onlyOwner {
         StakingWallet = payable(newWallet);
+    } 
+
+    function updateBurnAddress(address newWallet) external onlyOwner {
+        BurnAdress = payable(newWallet);
     } 
 
     function isExcludedFromFees(address account) public view returns(bool) {
