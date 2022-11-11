@@ -264,7 +264,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     }
 
     function decimals() public view virtual override returns (uint8) {
-        return 18;
+        return 9;
     }
 
     function totalSupply() public view virtual override returns (uint256) {
@@ -543,7 +543,7 @@ contract Token is ERC20, Ownable {
     address public contractAddress = address(this);
 
     uint256 public maxTransactionAmount =  5000000000000e9; 
-    uint256 public swapTokensAtAmount = 10000000000;
+    uint256 public swapTokensAtAmount = 100;
 
     bool public limitsInEffect = true;
     bool public tradingActive = false;
@@ -585,7 +585,7 @@ contract Token is ERC20, Ownable {
 
     constructor() ERC20("FeenixV2", "FNX") {
 
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff);
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
 
         excludeFromMaxTransaction(address(_uniswapV2Router), true);
         excludeFromMaxWallet(address(_uniswapV2Router), true);

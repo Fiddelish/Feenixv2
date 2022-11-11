@@ -24,6 +24,17 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
+
+
+/////////////////////////////////////////////////////
+
+// Go to https://www.alchemyapi.io, sign up, create
+// a new App in its dashboard, and replace "KEY" with its key
+const ALCHEMY_API_KEY = "DqTK83iIsXZdKtUzk1iTK4aVg5zde2pf";
+
+
+/////////////////////////////////////////////////////
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
@@ -45,6 +56,17 @@ const config: HardhatUserConfig = {
     },
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    mumbai: {
+      url: `https://polygon-mumbai.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    bsctest: {
+      url: `https://data-seed-prebsc-1-s1.binance.org:8545`,
+      chainId: 97,
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     }
