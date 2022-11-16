@@ -40,7 +40,7 @@ const ALCHEMY_API_KEY = "DqTK83iIsXZdKtUzk1iTK4aVg5zde2pf";
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.15",
+    version: "0.8.17",
     settings: {
       optimizer: {
         enabled: true,
@@ -51,8 +51,7 @@ const config: HardhatUserConfig = {
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545",
-      allowUnlimitedContractSize: true,
-      gas: 1000000
+      allowUnlimitedContractSize: true
     },
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
@@ -68,7 +67,7 @@ const config: HardhatUserConfig = {
       url: `https://data-seed-prebsc-1-s1.binance.org:8545`,
       chainId: 97,
       accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY, "c42a56fffe0bc16804deada708cf03de3282adab3268d654c31ac02704a23ce6"] : [],
     }
   },
   gasReporter: {

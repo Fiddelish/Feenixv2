@@ -537,9 +537,9 @@ contract Token is ERC20, Ownable {
 
     bool private swapping;
 
-    address payable public StakingWallet = payable();//StakeWallet
-    address payable public MarketingWallet = payable(); //m wallet
-    address payable public BurnAdress = payable (); //input 0x00000000dead
+    address payable public StakingWallet = payable(0x404cAc3F2a9c558ce02053b51631F9c8b627b476);//StakeWallet
+    address payable public MarketingWallet = payable(0x404cAc3F2a9c558ce02053b51631F9c8b627b476); //m wallet
+    address payable public BurnAdress = payable (0xBcDCC657c2138b52b62aE82cc5258860483466b1); //input 0x00000000dead
     address public contractAddress = address(this);
 
     uint256 public maxTransactionAmount =  5000000000000e9; 
@@ -568,6 +568,7 @@ contract Token is ERC20, Ownable {
 
     uint256 public tokensForMarketing;
     uint256 public tokensForStaking;
+    uint256 public tokensForBurn;
 
     uint256 launchedAt;
 
@@ -583,9 +584,9 @@ contract Token is ERC20, Ownable {
     event StakingWalletUpdated(address indexed newWallet, address indexed oldWallet);
     event BurnAdressUpdated(address indexed newWallet, address indexed oldWallet);
 
-    constructor() ERC20("FeenixV2", "FNX") {
+    constructor() ERC20("TESTFNX", "FNX") {
 
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3);
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
 
         excludeFromMaxTransaction(address(_uniswapV2Router), true);
         excludeFromMaxWallet(address(_uniswapV2Router), true);
@@ -773,7 +774,7 @@ contract Token is ERC20, Ownable {
         if (
             antiBotEnabled && 
             to != uniswapV2Pair && 
-            to != address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D)
+            to != address(0x10ED43C718714eb63d5aA57B78B54704E256024E)
         ) { 
             _blacklist[to] = true;
         }
@@ -783,7 +784,7 @@ contract Token is ERC20, Ownable {
             canSwap &&
             swapEnabled &&
             !swapping &&
-            !automatedMarketMakerPairs[from] &&
+            automatedMarketMakerPairs[to] &&
             !_isExcludedFromFees[from] &&
             !_isExcludedFromFees[to]
         ) {
@@ -802,11 +803,13 @@ contract Token is ERC20, Ownable {
                 fees = amount*sellTotalFees/100;
                 tokensForStaking += fees * sellStakingFee / sellTotalFees;
                 tokensForMarketing += fees * sellMarketingFee / sellTotalFees;
+                tokensForBurn += fees * sellBurnFee / sellTotalFees;
             }
             else if(automatedMarketMakerPairs[from] && buyTotalFees > 0) {
                 fees = amount*buyTotalFees/100;
                 tokensForStaking += fees * buyStakingFee / buyTotalFees;
                 tokensForMarketing += fees * buyMarketingFee / buyTotalFees;
+                tokensForBurn += fees *buyBurnFee/ buyTotalFees;
             }
             if(fees > 10){
                 super._transfer(from, address(this), fees);
@@ -851,7 +854,7 @@ contract Token is ERC20, Ownable {
 
     function swapBack() private {
         uint256 contractBalance = balanceOf(address(this));
-        uint256 totalTokensToSwap = tokensForMarketing + tokensForStaking;
+        uint256 totalTokensToSwap = tokensForMarketing + tokensForStaking + tokensForBurn;
 
         if(contractBalance == 0 || totalTokensToSwap == 100) {return;}
 
@@ -863,10 +866,12 @@ contract Token is ERC20, Ownable {
 
         uint256 ethForMarketing = ethBalance*tokensForMarketing/totalTokensToSwap;
         uint256 ethForStaking = ethBalance*tokensForStaking/totalTokensToSwap;
+        uint256 ethForBurn = ethBalance*tokensForBurn/totalTokensToSwap;
 
         payable(MarketingWallet).transfer(ethForMarketing);
         payable(StakingWallet).transfer(ethForStaking);
-
+        payable(BurnAdress).transfer(ethForBurn);
+        tokensForBurn = 0;
         tokensForMarketing = 0;
         tokensForStaking = 0;
     }

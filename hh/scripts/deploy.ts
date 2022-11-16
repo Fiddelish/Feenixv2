@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 
-const GAS_LIMIT: number = 1000000;
+const GAS_LIMIT: number = 10000000;
 
 async function main() {
   const FNX = await ethers.getContractFactory("Token");
