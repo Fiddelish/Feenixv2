@@ -539,7 +539,7 @@ contract Token is ERC20, Ownable {
 
     address payable public StakingWallet = payable(0);//StakeWallet
     address payable public MarketingWallet = payable(0); //m wallet
-    address payable public BurnAdress = payable (0); //input 0x00000000dead
+    address payable public BurnAddress = payable (0); //input 0x00000000dead
     address public contractAddress = address(this);
 
     uint256 public maxTransactionAmount =  5000000000000e9; 
@@ -582,7 +582,7 @@ contract Token is ERC20, Ownable {
     event SetAutomatedMarketMakerPair(address indexed pair, bool indexed value);
     event MarketingWalletUpdated(address indexed newWallet, address indexed oldWallet);
     event StakingWalletUpdated(address indexed newWallet, address indexed oldWallet);
-    event BurnAdressUpdated(address indexed newWallet, address indexed oldWallet);
+    event BurnAddressUpdated(address indexed newWallet, address indexed oldWallet);
 
     constructor() ERC20("ProjectFeenix", "FNX") {
 
@@ -725,7 +725,7 @@ contract Token is ERC20, Ownable {
     } 
 
     function updateBurnAddress(address newWallet) external onlyOwner {
-        BurnAdress = payable(newWallet);
+        BurnAddress = payable(newWallet);
     } 
 
     function isExcludedFromFees(address account) public view returns(bool) {
@@ -870,7 +870,7 @@ contract Token is ERC20, Ownable {
 
         payable(MarketingWallet).transfer(ethForMarketing);
         payable(StakingWallet).transfer(ethForStaking);
-        payable(BurnAdress).transfer(ethForBurn);
+        payable(BurnAddress).transfer(ethForBurn);
         tokensForBurn = 0;
         tokensForMarketing = 0;
         tokensForStaking = 0;
