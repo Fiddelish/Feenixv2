@@ -1,0 +1,31 @@
+version: '3.3'
+services:
+
+  redis:
+    image: redis
+    restart: on-failure
+    ports:
+      - "15379:6379"
+    volumes:
+      - ./.data/redis:/data
+    networks:
+      - rwo_network
+
+  rwodb:
+    image: postgres
+    restart: on-failure
+    environment:
+      - POSTGRES_DB=${RWO_DB}
+      - POSTGRES_USER=${RWO_DB_USER}
+      - POSTGRES_PASSWORD=${RWO_DB_PASSWORD}
+    ports:
+      - "15432:5432"
+    volumes:
+      - ./.data/postgres-data:/var/lib/postgresql/data
+    networks:
+      - rwo_network
+
+
+networks:
+  rwo_network:
+    external: true
