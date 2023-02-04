@@ -1,0 +1,1 @@
+{"templateDir": "sdk/templates/ts", "additionalProperties": {"npmName": "@rwo/rwo_ts_sdk", "npmVersion": "2023.3.0", "npmDescription": "Typescript SDK for RWO Server", "snapshot": false, "modelPropertyNaming": "original"}}
