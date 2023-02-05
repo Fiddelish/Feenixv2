@@ -29,7 +29,7 @@ setup(
     name=NAME,
     version=get_version(),
     description="RWO Server",
-    keywords=["Swagger", "hugs"],
+    keywords=["Swagger", "rwo"],
     classifiers=[
         "Private :: Do Not Upload to pypi server",
     ],
@@ -37,7 +37,7 @@ setup(
     packages=find_packages("./src"),
     install_requires=REQUIRES,
     long_description="""\
-    Python modules implementing HUGS server
+    Python modules implementing RWO server
     functionality and APIs
     """,
     entry_points="""

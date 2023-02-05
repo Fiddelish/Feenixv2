@@ -13,8 +13,8 @@ from http import client as http_client
 from {{packageName}}.exceptions import ApiValueError
 
 from datetime import datetime, timedelta
-from hugs_server.auth.token import request_access_token
-from hugs_server.common.utils import exception_stack_trace
+from rwo.auth.token import request_access_token
+from rwo.common.utils import exception_stack_trace
 
 
 JSON_SCHEMA_VALIDATION_KEYWORDS = {
@@ -490,7 +490,7 @@ conf = {{{packageName}}}.Configuration(
                 request_new_token = True
             if request_new_token:
                 self.token_info = request_access_token(
-                    audience="management_api"
+                    audience="api"
                 )
         except Exception as e:
             print(f"Exception occurred refreshing access token: {str(e)}")
