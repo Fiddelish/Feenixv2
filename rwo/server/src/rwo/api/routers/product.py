@@ -28,7 +28,7 @@ def get_products(db: Session = Depends(get_db_session)):
     return crud.get_products(db)
 
 @router.get(
-    "/product/{product_id}",
+    "/id/{product_id}",
     operation_id="get_product_by_id",
     response_model=Product
 )
