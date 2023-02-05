@@ -1,6 +1,6 @@
 import json
 
-from rwo.api_main import build_app
+from rwo.main import build_app
 
 app = build_app()
 with open("sdk/openapi.json", "wb") as f:
