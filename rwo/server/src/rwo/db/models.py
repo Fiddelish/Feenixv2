@@ -3,7 +3,7 @@ from sqlalchemy import (
     Integer,
     BigInteger,
     String,
-    Binary,
+    LargeBinary,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -20,5 +20,5 @@ class Product(Base):
     name = Column(String(255), unique=True, nullable=False)
     description = Column(String(1024), unique=True, nullable=True)
     price = Column(BigInteger, nullable=False)
-    image = Column(Binary, nullable=True)
+    image = Column(LargeBinary, nullable=True)
     quantity = Column(Integer, nullable=False)
