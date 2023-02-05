@@ -42,6 +42,6 @@ setup(
     """,
     entry_points="""
         [console_scripts]
-        rwoapi=rwo.api_main:run
+        rwoapi=rwo.main:run
     """
 )
