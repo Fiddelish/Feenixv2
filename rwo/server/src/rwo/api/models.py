@@ -7,7 +7,7 @@ class Product(BaseModel):
     name: str
     description: Optional[str] = Field(None, nullable=True)
     price: int
-    image: bytes
+    image: str
     quantity: int
 
     class Config:
