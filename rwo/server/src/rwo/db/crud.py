@@ -39,7 +39,6 @@ def add_product(product: apimodels.Product, db: Session) -> dbmodels.Product:
     db_product.name = product.name
     db_product.description = product.description
     db_product.price = product.price
-    db_product.image = product.image
     db_product.quantity = product.quantity
     db.add(db_product)
     db.commit()

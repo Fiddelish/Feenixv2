@@ -4,9 +4,9 @@ from sqlalchemy.orm import scoped_session, sessionmaker, class_mapper
 from sqlalchemy.ext.declarative import declarative_base
 import os
 
-RWO_DB_USER = os.getenv("RWO_DB_USER", "RWO")
-RWO_DB_PASSWORD = os.getenv("RWO_DB_PASSWORD", "quantott0")
-RWO_DB_SERVER = os.getenv("RWO_DB_SERVER", "127.0.0.1:5432")
+RWO_DB_USER = os.getenv("RWO_DB_USER", "rwouser")
+RWO_DB_PASSWORD = os.getenv("RWO_DB_PASSWORD", "rwopwd")
+RWO_DB_SERVER = os.getenv("RWO_DB_SERVER", "rwosrv:15432")
 RWO_DB = os.getenv("RWO_DB", "rwo")
 RWO_DB_CONN_STRING = f"postgresql://{RWO_DB_USER}:{RWO_DB_PASSWORD}@{RWO_DB_SERVER}/{RWO_DB}"
 

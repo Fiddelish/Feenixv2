@@ -1,0 +1,14 @@
+{
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "prettier/prettier": "off",
+    "node/no-unsupported-features/es-syntax": "off",
+    "node/no-missing-import": "off",
+    "node/no-unpublished-import": "off",
+    "no-unused-vars": "off",
+    "no-unused-expressions": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "react-hooks/rules-of-hooks": "off",
+    "@next/next/no-html-link-for-pages": "off"
+  }
+}

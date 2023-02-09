@@ -4,3 +4,6 @@ call node_modules\.bin\openapi-generator-cli generate -i sdk/openapi.json -g pyt
 call node_modules\.bin\openapi-generator-cli generate -i sdk/openapi.json -g typescript-axios -c sdk/ts_conf.json -o sdk/ts
 cd sdk/ts
 call npm install
+cd ../..
+rd /q /s ..\web3\dapp\fnxstore\rwo_ts_sdk
+xcopy /s /i /q /y sdk\ts ..\web3\dapp\fnxstore\rwo_ts_sdk

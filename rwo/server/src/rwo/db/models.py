@@ -20,5 +20,4 @@ class Product(Base):
     name = Column(String(255), unique=True, nullable=False)
     description = Column(String(1024), unique=True, nullable=True)
     price = Column(BigInteger, nullable=False)
-    image = Column(String(255), nullable=False)
     quantity = Column(Integer, nullable=False)
