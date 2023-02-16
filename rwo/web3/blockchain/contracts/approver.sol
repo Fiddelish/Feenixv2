@@ -80,14 +80,17 @@ contract FnxTokenApprover {
     address public owner; 
 
 
-    constructor () public {
-        token = IERC20();//add testnet
-
+    constructor () {
+        owner = msg.sender;
     }
     
     modifier OnlyOwner() {
         require(msg.sender == owner);
         _;
+    }
+
+    function SetTokenAddress(address tokenAddress) external OnlyOwner {
+        token = IERC20(tokenAddress);
     }
 
   
@@ -96,7 +99,7 @@ contract FnxTokenApprover {
    }
    
    
-   function Approvetokens(uint256 _token) public returns(bool){
+   function ApproveTokens(uint256 _token) public returns(bool){
        token.approve(address(this), _token);
        return true;
    }
@@ -107,8 +110,8 @@ contract FnxTokenApprover {
    }
    
    function AcceptPayment(uint256 _tokenamount) public returns(bool) {
-       require(_tokenamount > GetAllowance(), "Please approve tokens before transferring");
-       token.transfer(address(this), _tokenamount);
+       // require(_tokenamount > GetAllowance(), "Please approve tokens before transferring");
+       token.transferFrom(msg.sender, address(this), _tokenamount);
        return true;
    }
    
