@@ -34,6 +34,7 @@ services:
     volumes:
       - ./nginx-data:/tmp/data
       - ${SSL_CERTS_FOLDER}:/etc/nginx/certs
+      - ${ACME_HTTP01_FOLDER}:/etc/nginx/acme-challenge
     networks:
       - rwo_network
 
