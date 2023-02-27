@@ -13,7 +13,6 @@ RUN apt-get -yy update && \
 RUN apt-get -yy update
 
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY oauth2.js /etc/nginx/conf.d/oauth2.js
 
 RUN mkdir -p /etc/nginx/certs
 RUN mkdir /tmp/data
