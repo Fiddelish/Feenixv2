@@ -25,6 +25,17 @@ services:
     networks:
       - rwo_network
 
+  nginx:
+    image: rwonginx:dev
+    restart: on-failure
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx-data:/tmp/data
+      - ${SSL_CERTS_FOLDER}:/etc/nginx/certs
+    networks:
+      - rwo_network
 
 networks:
   rwo_network:
