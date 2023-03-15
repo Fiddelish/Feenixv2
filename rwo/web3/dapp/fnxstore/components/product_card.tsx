@@ -1,15 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
+import useModal from "use-react-modal"
 import { Product } from "rwo_ts_sdk";
-import { useWeb3React } from "@web3-react/core";
+import Buy from "./buy";
+
 
 export default function ProductCard(
     { product }: 
     { product: Product }
 ) {
-    function buyProduct() {
-        window.alert(`Buying product ${product.name} for ${product.price / 100} USDC`);
-    }
+    const { isOpen, openModal, closeModal, Modal } = useModal({
+        // sets the color of the backdrop, if nothing is set, the backdrop will be transparent unless it's set in the Provider
+        // setting to `null` removes any background set in the `Provider`
+        background: 'rgba(0, 0, 0, 0.8)',
+        // `event` has all the fields that a normal `event` would have such as `event.target.value`, etc.
+        // with the additional `portal` and `targetEl` added to it as seen in the examples below
+        onOpen: (event) => {
+          // can access: event.portal, event.targetEl, event.event, event.target, etc.
+        },
+        // `onClose` will not have an `event` unless you pass an `event` to `closePortal`
+        onClose({ targetEl, event, portal }) {},
+    });
     
     return (
         <>
@@ -38,12 +49,17 @@ export default function ProductCard(
                     <button
                         className="bg-blue-700 hover:bg-blue-900
                             text-white font-bold py-2 px-4 rounded-full"
-                        onClick={buyProduct}
+                        onClick={openModal}
                     >
                         Buy
                     </button>
                 </div>
             </div>
+            {isOpen && (
+                <Modal>
+                    <Buy product={product}/>
+                </Modal>
+            )}
         </>
     )
 }
