@@ -2,6 +2,7 @@ from sqlalchemy import (
     Column,
     ForeignKey,
     CheckConstraint,
+    DateTime,
     Integer,
     BigInteger,
     String,
@@ -26,9 +27,11 @@ class Order(Base):
     __tablename__ = "order"
     id = Column(Integer, primary_key=True)
     product_id = Column(Integer, ForeignKey("product.id"), nullable=False)
+    timestamp = Column(DateTime, nullable=False)
     email = Column(String(255), nullable=False)
     wallet = Column(String(255), nullable=False)
     quantity = Column(Integer, nullable=False)
+    total = Column(Integer, nullable=False)
     internal_tx_id = Column(String(255), unique=True, nullable=False)
     tx_hash = Column(String(255), unique=True, nullable=True)
     status = Column(String(32), nullable=False)
