@@ -26,7 +26,8 @@ from ...common.blockchain import (
 from ...db import crud
 from ..dependencies import get_db_session
 
-def generate_tx_id(timestamp: datetime) -> str:
+
+def generate_random_digest(timestamp: datetime) -> str:
     dt = str(timestamp.timestamp()).replace(".", "")
     guid = str(uuid.uuid4()).replace("-", "")
     key = str(uuid.uuid4()).replace("-", "").encode()
@@ -35,6 +36,9 @@ def generate_tx_id(timestamp: datetime) -> str:
     h.update(key)
     h.update(msg)
     return h.hexdigest()
+
+def generate_accessor() -> str:
+    return generate_random_digest(datetime.utcnow())
 
 router = APIRouter(
     prefix="/v1/order",
@@ -51,7 +55,8 @@ router = APIRouter(
 @rollback_error500()
 def create_order(cor: CreateOrderRequest, db: Session = Depends(get_db_session)):
     timestamp = datetime.utcnow()
-    internal_tx_id = generate_tx_id(timestamp)
+    internal_tx_id = generate_random_digest(timestamp)
+    accessor = generate_accessor()
     my_order = Order(
         id = 0,
         product_id=cor.product_id,
@@ -61,6 +66,7 @@ def create_order(cor: CreateOrderRequest, db: Session = Depends(get_db_session))
         quantity=cor.quantity,
         total=cor.total,
         internal_tx_id=internal_tx_id,
+        accessor=accessor,
         tx_hash=None,
         status=OrderStatus.pending
     )

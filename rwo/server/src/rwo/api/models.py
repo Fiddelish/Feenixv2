@@ -29,6 +29,7 @@ class Order(BaseModel):
     quantity: int
     total: int
     internal_tx_id: str
+    accessor: str
     tx_hash: Optional[str] = Field(None, nullable=True)
     status: OrderStatus
 

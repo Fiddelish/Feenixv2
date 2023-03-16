@@ -70,6 +70,7 @@ def add_order(order: apimodels.Order, db: Session) -> dbmodels.Order:
     db_order.quantity = order.quantity
     db_order.total = order.total
     db_order.internal_tx_id = order.internal_tx_id
+    db_order.accessor = order.accessor
     db_order.tx_hash = order.tx_hash
     db_order.status = order.status
     db.add(db_order)
