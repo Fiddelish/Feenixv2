@@ -4,6 +4,6 @@
 
 @layer base {
     body {
-        @apply bg-gray-900 text-white; /*[#ffc65c];*/
+        @apply bg-stone-100 text-stone-900;
     }
 }
