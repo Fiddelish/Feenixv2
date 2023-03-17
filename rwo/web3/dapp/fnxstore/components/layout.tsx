@@ -34,25 +34,25 @@ export default function Layout({ children }: { children: ReactNode }) {
                         <div className="grid bg-blue-900 place-items-end border-b-2 border-white">
                             <Wallet />
                         </div>
-                        <div className="flex flex-row pt-4">
+                        <div className="flex flex-row pt-4 pl-2">
                             {menuItems.map(({ href, title }) => (
                                 <Link href={href}>
                                     <a
-                                        className={`px-6 cursor-pointer rounded-sm  ${
-                                            router.asPath === href && "font-bold"
+                                        className={`px-6 cursor-pointer hover:outline outline-stone-900 rounded-sm  ${
+                                            router.asPath === href && "font-semibold"
                                         }`}
                                     >
                                         {title}
                                     </a>
                                 </Link>
                             ))}
-                            <div className="flex flex-row">
+                            <div className="flex flex-row ml-2">
                                 <input
                                     type="text"
-                                    className="rounded-sm h-6 border-orange-800 focus:border-transparent focus:ring-orange-900 w-36"
+                                    className="rounded-sm h-6 border-stone-900 focus:border-transparent focus:ring-orange-900 w-36"
                                 />
                                 <button>
-                                    <SearchIcon className="h-4"></SearchIcon>
+                                    <SearchIcon className="pl-1 h-4"></SearchIcon>
                                 </button>
                             </div>
                         </div>

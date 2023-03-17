@@ -93,7 +93,6 @@ export default function Wallet() {
                             leading-tight
                             uppercase
                             rounded-md
-                            shadow-md shadow-blue-500/40
                             hover:bg-orange-800 hover:shadow-lg
                             focus:bg-orange-800 focus:shadow-lg focus:outline-none focus:ring-0
                             active:bg-orange-900 active:shadow-lg
