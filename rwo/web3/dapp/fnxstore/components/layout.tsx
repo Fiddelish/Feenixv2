@@ -31,7 +31,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             <div>
                 <header>
                     <nav>
-                        <div className="grid bg-blue-900 place-items-end border-b-2 border-white">
+                        <div className="grid bg-[#12789A] place-items-end border-b-2 border-white">
                             <Wallet />
                         </div>
                         <div className="flex flex-row pt-4 pl-2">
