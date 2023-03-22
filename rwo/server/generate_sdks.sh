@@ -7,6 +7,5 @@ node_modules/.bin/openapi-generator-cli generate -i sdk/openapi.json -g typescri
 cd sdk/ts
 npm install
 cd ../..
-cd ../..
 rm -rf ../web3/dapp/fnxstore/rwo_ts_sdk
 cp -R sdk/ts ../web3/dapp/fnxstore/rwo_ts_sdk

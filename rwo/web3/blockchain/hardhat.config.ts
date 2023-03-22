@@ -34,22 +34,22 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200
-      }
-    }
+        runs: 200,
+      },
+    },
   },
   networks: {
     localrwo: {
-      url: "http://rwosrv:15545"
+      url: "http://localhost:15545",
     },
     docker: {
-      url: "http://hardhat:8545"
+      url: "http://hardhat:8545",
     },
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    }
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
@@ -62,8 +62,8 @@ const config: HardhatUserConfig = {
     sources: "./contracts",
     tests: "./contracts/test",
     cache: "./cache",
-    artifacts: "./out/abi"
-  }
+    artifacts: "./out/abi",
+  },
 };
 
 export default config;
