@@ -83,8 +83,6 @@ export default function Wallet() {
             <div className="py-2 pr-6">
                 {!active ? (
                     <button
-                        data-te-target="#walletModal"
-                        data-te-toggle="modal"
                         type="button"
                         className="px-6
                             py-2.5
