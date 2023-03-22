@@ -9,7 +9,7 @@ const handle = app.getRequestHandler()
 
 const apiPaths = {
     '/api': {
-        target: 'http://127.0.0.1:5000', 
+        target: 'http://rwoapi:5000', 
         pathRewrite: {
             '^/api': ''
         },
