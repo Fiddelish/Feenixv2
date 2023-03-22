@@ -38,6 +38,16 @@ services:
     networks:
       - rwo_network
 
+  hardhat:
+    image: rwohardhat:dev
+    restart: on-failure
+    ports:
+      - "15545:8545"
+    command: npx hardhat node
+    networks:
+      - rwo_network
+
+
 networks:
   rwo_network:
     external: true

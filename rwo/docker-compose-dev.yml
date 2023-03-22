@@ -1,0 +1,39 @@
+version: '3.3'
+services:
+  rwo_portal:
+    image: node:16-alpine
+    restart: on-failure
+    ports:
+      - "15300:3000"
+    volumes:
+      # Mount the root folder that contains .git
+      - .:/workspace:cached
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    networks:
+      - rwo_network
+
+  rwoapi:
+    image: quantotto/hugs_server_build:dev
+    restart: on-failure
+    ports:
+      - "15500:5000"
+    environment:
+      - RWO_HOME=.
+      - RWO_DB_USER=rwouser
+      - RWO_DB_PASSWORD=rwopwd
+      - RWO_DB_SERVER=rwodb:5432
+      - RWO_DB=rwo
+      - REDIS_SERVER=redis:6379
+      - RWO_API_SERVER=http://localhost:5000
+      - EXTRA_CORS_ORIGINS=http://localhost:3000
+    volumes:
+      # Mount the root folder that contains .git
+      - .:/workspace:cached
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    networks:
+      - rwo_network
+
+
+networks:
+  rwo_network:
+    external: true
