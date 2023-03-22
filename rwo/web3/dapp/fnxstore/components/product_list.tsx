@@ -17,7 +17,7 @@ export default function ProductList() {
         });
     }, []);
     return (
-        <div className="grid grid-flow-col">
+        <div className="flex flex-wrap">
             {!isLoading && products.map((p) => <ProductCard key={p.id} product={p} />)}
             {isLoading && <p>Loading...</p>}
         </div>

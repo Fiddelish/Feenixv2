@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import Wallet from "./wallet";
 import { SearchIcon } from "@heroicons/react/outline";
@@ -31,22 +30,24 @@ export default function Layout({ children }: { children: ReactNode }) {
             <div>
                 <header>
                     <nav>
-                        <div className="grid bg-[#12789A] place-items-end border-b-2 border-white">
+                        <div className="flex bg-gradient-to-r from-sky-700 to-sky-600 justify-end border-b-2 border-white">
                             <Wallet />
                         </div>
-                        <div className="flex flex-row pt-4 pl-2">
+                        <div className="flex flex-col sm:flex-row pt-4 pl-2">
                             {menuItems.map(({ href, title }) => (
-                                <Link href={href}>
-                                    <a
-                                        className={`px-6 cursor-pointer hover:outline outline-stone-900 rounded-sm  ${
-                                            router.asPath === href && "font-semibold"
-                                        }`}
-                                    >
-                                        {title}
-                                    </a>
-                                </Link>
+                                <div key={href}>
+                                    <Link href={href}>
+                                        <a
+                                            className={`px-6 cursor-pointer hover:outline outline-stone-900 rounded-sm  ${
+                                                router.asPath === href && "font-semibold"
+                                            }`}
+                                        >
+                                            {title}
+                                        </a>
+                                    </Link>
+                                </div>
                             ))}
-                            <div className="flex flex-row ml-2">
+                            <div className="flex flex-row pl-6">
                                 <input
                                     type="text"
                                     className="rounded-sm h-6 border-stone-900 focus:border-transparent focus:ring-orange-900 w-36"

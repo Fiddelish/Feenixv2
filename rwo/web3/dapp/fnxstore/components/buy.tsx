@@ -24,14 +24,20 @@ export default function Buy({ product }: { product: Product }) {
                     overflow-hidden
                     gap-y-5 p-4"
             >
-                <Image className="" src={`/images/${product.id}.png`} width={90} height={90} alt=""></Image>
+                <Image
+                    className="object-cover"
+                    src={`/images/${product.id}.png`}
+                    width={150}
+                    height={150}
+                    alt=""
+                ></Image>
                 <div className="px-8 py-2">
                     <div className="font-bold text-xl">{product.name}</div>
-                    <div className="text-md">{product.description}</div>
-                    <p className="font-bold">Price: {product.price / 100} USDC</p>
+                    <div className="text-md text-stone-600">{product.description}</div>
+                    <div className="font-bold mt-2">Price: {product.price / 100} USDC</div>
                 </div>
                 <div className="columns-2">
-                    <div className="w-32">Email:</div>
+                    <div className="w-32 pl-3">Email:</div>
                     <div className="">
                         <input
                             type="text"
@@ -39,7 +45,7 @@ export default function Buy({ product }: { product: Product }) {
                             className="text-orange-900 border-transparent focus:border-transparent focus:ring-orange-900 rounded-sm w-42"
                         ></input>
                     </div>
-                    <div className="w-32">Confirm Email:</div>
+                    <div className="w-32 pl-3">Confirmation:</div>
                     <div className="">
                         <input
                             type="text"

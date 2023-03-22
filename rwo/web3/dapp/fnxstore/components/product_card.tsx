@@ -22,23 +22,30 @@ export default function ProductCard({ product }: { product: Product }) {
         <>
             <div
                 className="flex flex-col bg-stone-100 rounded-md
-                    shadow-2xl shadow-black w-full m-6
-                    overflow-hidden sm:w-64 sm:h-80
+                    shadow-2xl shadow-black m-6
+                    overflow-hidden w-64 h-80
                     gap-y-5"
             >
-                <Image className="" src={`/images/${product.id}.png`} width={150} height={120} alt=""></Image>
+                <Image
+                    className="object-cover"
+                    priority
+                    placeholder="empty"
+                    src={`/images/${product.id}.png`}
+                    width={150}
+                    height={120}
+                    alt=""
+                ></Image>
                 <div className="px-8 py-2 text-stone-800">
                     <div className="font-bold text-xl mb-2">{product.name}</div>
-                    <div className="text-md mb-2">{product.description}</div>
-                    <p className="font-bold">Price: {product.price / 100} USDC</p>
+                    <div className="text-md text-stone-600 mb-2">{product.description}</div>
                 </div>
-                <div className="flex justify-around py-2">
+                <div className="flex w-full justify-center">
                     <button
-                        className="bg-orange-400 hover:bg-orange-600
-                            text-white font-bold py-2 px-4 rounded-sm"
+                        className="bg-orange-500 hover:bg-orange-600
+                            text-white font-bold py-2 px-4 rounded-md w-32"
                         onClick={openModal}
                     >
-                        Buy
+                        {product.price / 100} USDC
                     </button>
                 </div>
             </div>

@@ -83,24 +83,24 @@ export default function Wallet() {
             <div className="py-2 pr-6">
                 {!active ? (
                     <button
+                        data-te-target="#walletModal"
+                        data-te-toggle="modal"
                         type="button"
                         className="px-6
                             py-2.5
-                            bg-orange-600
+                            bg-orange-500
                             text-white
-                            font-medium
+                            font-semibold
                             text-xs
                             leading-tight
                             uppercase
                             rounded-md
-                            hover:bg-orange-800 hover:shadow-lg
-                            focus:bg-orange-800 focus:shadow-lg focus:outline-none focus:ring-0
-                            active:bg-orange-900 active:shadow-lg
+                            hover:bg-orange-600 hover:shadow-lg
+                            focus:bg-orange-600 focus:shadow-lg focus:outline-none focus:ring-0
+                            active:bg-orange-800 active:shadow-lg
                             transition
                             duration-150
                             ease-in-out"
-                        data-bs-toggle="modal"
-                        data-bs-target="#exampleModal"
                     >
                         Connect Wallet
                     </button>
@@ -108,17 +108,17 @@ export default function Wallet() {
                     <button
                         type="button"
                         className="px-6 py-2.5
-                                bg-orange-600
+                                bg-orange-500
                                 text-white
-                                font-medium
+                                font-semibold
                                 text-xs
                                 leading-tight
                                 uppercase
                                 rounded-md
                                 shadow-md
                                 hover:bg-orange-600 hover:shadow-lg
-                                focus:bg-orange-800 focus:shadow-lg focus:outline-none focus:ring-0
-                                active:bg-orange-900 active:shadow-lg
+                                focus:bg-orange-600 focus:shadow-lg focus:outline-none focus:ring-0
+                                active:bg-orange-800 active:shadow-lg
                                 transition
                                 duration-150
                                 ease-in-out"
@@ -138,15 +138,19 @@ export default function Wallet() {
                 )}
             </div>
             <div
-                className="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto"
-                id="exampleModal"
+                data-te-modal-init
+                className="fixed top-0 left-0 z-[1055] hidden h-full w-full overflow-y-auto overflow-x-hidden outline-none"
+                id="walletModal"
                 tabIndex={-1}
-                aria-labelledby="exampleModalLabel"
+                aria-labelledby="walletModalLabel"
                 aria-hidden="true"
             >
-                <div className="modal-dialog relative w-auto pointer-events-none">
+                <div
+                    data-te-modal-dialog-ref
+                    className="pointer-events-none relative w-auto translate-y-[-50px] opacity-0 transition-all duration-300 ease-in-out justify-center"
+                >
                     <div
-                        className="modal-content shadow-lg
+                        className="modal-content shadow-lg w-48
                         flex justify-center flex-col pointer-events-auto
                         bg-gray-600 rounded-md outline-none
                         text-current border"
@@ -158,7 +162,7 @@ export default function Wallet() {
                             <h5
                                 className="text-xl font-medium
                                 leading-normal text-white"
-                                id="exampleModalLabel"
+                                id="walletModalLabel"
                             >
                                 Connect Wallet
                             </h5>
