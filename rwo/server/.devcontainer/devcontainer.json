@@ -11,5 +11,5 @@
             "extensions": ["dbaeumer.vscode-eslint"]
         }
     },
-    "workspaceFolder": "/workspace/rwo/server"
+    "workspaceFolder": "/workspace/server"
 }

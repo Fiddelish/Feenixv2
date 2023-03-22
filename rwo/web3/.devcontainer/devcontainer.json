@@ -11,6 +11,6 @@
             "extensions": ["dbaeumer.vscode-eslint"]
         }
     },
-    "workspaceFolder": "/workspace/rwo/web3",
+    "workspaceFolder": "/workspace/web3",
     "postCreateCommand": "apk add --no-cache libc6-compat git"
 }
