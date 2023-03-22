@@ -2,8 +2,9 @@
 pragma solidity 0.8.17;
 
 import "./Ownable.sol";
+import "./IERC20.sol";
 
-contract TaxTaker is Ownable {
+contract FeesTaker is Ownable {
 
     address payable public Dev3Wallet = payable(0);
     address payable public Dev2Wallet = payable(0);
@@ -51,5 +52,18 @@ contract TaxTaker is Ownable {
 
         TotalFees = TotalFees = FNXFee + FNXFee + Dev1Fee + Dev2Fee + Dev3Fee;
         require(TotalFees <= 10, "Must keep fees at 10% or less");
+    }
+
+    function _takeFees(IERC20 token, address sender, uint256 amount) internal {
+        uint256 dev1Amount = Dev1Fee * amount / 100;
+        uint256 dev2Amount = Dev2Fee * amount / 100;
+        uint256 dev3Amount = Dev3Fee * amount / 100;
+        uint256 rwoAmount = RWOFee * amount / 100;
+        uint256 fnxAmount = FNXFee * amount / 100;
+        token.transferFrom(sender, Dev1Wallet, dev1Amount);
+        token.transferFrom(sender, Dev2Wallet, dev2Amount);
+        token.transferFrom(sender, Dev3Wallet, dev3Amount);
+        token.transferFrom(sender, RWOWallet, rwoAmount);
+        token.transferFrom(sender, FNXWallet, fnxAmount);
     }
 }

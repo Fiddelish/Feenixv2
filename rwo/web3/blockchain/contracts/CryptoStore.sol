@@ -2,18 +2,42 @@
 pragma solidity 0.8.17;
 
 import "./TokenApprover.sol";
-import "./TaxTaker.sol";
+import "./FeesTaker.sol";
 
-contract CryptoStore is TokenApprover, TaxTaker {
+contract CryptoStore is TokenApprover, FeesTaker {
 
     uint256 _balance;
+
+    mapping(uint256 => uint256) public productPrices;
+    mapping(string => uint256) public txInAmounts;
+    mapping(string => address) public txInAddresses;
 
     constructor () {
         _balance = 0;
     }
 
-    function GetContractBalance() public view OnlyOwner returns(uint256) { 
-       return _balance;
+    function GetContractTokenBalance() public OnlyOwner view returns(uint256) {
+        return _token.balanceOf(address(this));
+    }
+
+    function MakePayment(uint256 productId, uint256 amount, string memory txId) public {
+        require(productPrices[productId] > 0, "Invalid product ID");
+        require(productPrices[productId] == amount, "Wrong amount sent");
+        require(txInAmounts[txId] == 0, "transacion ID already exists");
+        require(txInAddresses[txId] == address(0), "transacion ID already exists");
+        txInAmounts[txId] = amount;
+        txInAddresses[txId] = msg.sender;
+        _distributeTaxes(msg.sender, amount);
+        _distributePayment(msg.sender, amount);
+    }
+
+    function _distributeTaxes(address sender, uint256 amount) internal {
+        _takeFees(_token, sender, amount);
+    }
+
+    function _distributePayment(address sender, uint256 amount) internal {
+        uint256 paymentAmount = amount * (100 - TotalFees) / 100;
+        _token.transferFrom(sender, address(this), paymentAmount);
     }
 
 }
