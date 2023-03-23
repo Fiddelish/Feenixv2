@@ -3,9 +3,35 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { connectors } from "./connectors";
 import { truncateAddress } from "./utils";
+import Modal from "react-modal";
 
 export default function Wallet() {
+    //let subtitle : string;
+    const customStyles = {
+        content: {
+            top: "50%",
+            left: "50%",
+            right: "auto",
+            bottom: "auto",
+            marginRight: "-50%",
+            transform: "translate(-50%, -50%)",
+        },
+    };
     const { library, account, active, activate, deactivate } = useWeb3React();
+    const [isOpen, setIsOpen] = useState(false);
+
+    function openModal() {
+        setIsOpen(true);
+    }
+
+    function afterOpenModal() {
+        // references are now sync'd and can be accessed.
+        //subtitle.style.color = '#f00';
+    }
+
+    function closeModal() {
+        setIsOpen(false);
+    }
     const [error, setError] = useState("");
     const [network, setNetwork] = useState(undefined);
     const [chainId, setChainId] = useState("");
@@ -78,6 +104,92 @@ export default function Wallet() {
         console.log(`Disconnect; active: ${active}`);
     };
 
+    function ProviderPicker() {
+        return (
+            <div
+                className="modal-content shadow-lg w-48
+        flex justify-center flex-col pointer-events-auto
+        bg-gray-600 rounded-md outline-none
+        text-current border"
+            >
+                <div
+                    className="modal-header flex items-center
+            justify-between p-4 border-b border-gray-200 rounded-t-md border"
+                >
+                    <h5
+                        className="text-xl font-medium
+                leading-normal text-white"
+                        id="walletModalLabel"
+                    >
+                        Connect Wallet
+                    </h5>
+                </div>
+                <div className="flex justify-around p-2">
+                    <div>
+                        <button
+                            onClick={() => {
+                                setError("");
+                                activate(
+                                    connectors.coinbaseWallet,
+                                    (error) => {
+                                        handleError(error);
+                                    },
+                                    false
+                                );
+                                setProvider("coinbaseWallet");
+                            }}
+                        >
+                            <Image src="/images/cbw.png" alt="Coinbase Wallet Logo" width={25} height={25} />
+                            <p>Coinbase Wallet</p>
+                        </button>
+                    </div>
+                    <div>
+                        <button
+                            onClick={() => {
+                                setError("");
+                                activate(
+                                    connectors.injected,
+                                    (error) => {
+                                        handleError(error);
+                                    },
+                                    false
+                                );
+                                setProvider("injected");
+                            }}
+                        >
+                            <Image src="/images/mm.png" alt="Metamask Logo" width={25} height={25} />
+                            <p>Metamask Wallet</p>
+                        </button>
+                    </div>
+                    <div>
+                        <button
+                            onClick={() => {
+                                setError("");
+                                activate(
+                                    connectors.walletConnect,
+                                    (error) => {
+                                        handleError(error);
+                                    },
+                                    false
+                                );
+                                setProvider("walletConnect");
+                            }}
+                        >
+                            <Image src="/images/wc.png" alt="Wallet Connect Logo" width={25} height={25} />
+                            <p>Wallet Connect</p>
+                        </button>
+                    </div>
+                </div>
+                <div
+                    className="modal-footer flex flex-shrink-0 flex-wrap
+            items-center justify-end p-4 border-t border-gray-200 rounded-b-md"
+                >
+                    <div className="text-black">{error}</div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <>
             <div className="py-2 pr-6">
@@ -99,6 +211,7 @@ export default function Wallet() {
                             transition
                             duration-150
                             ease-in-out"
+                        onClick={openModal}
                     >
                         Connect Wallet
                     </button>
@@ -135,104 +248,15 @@ export default function Wallet() {
                     <p>{`Account: ${truncateAddress(account)}`}</p>
                 )}
             </div>
-            <div
-                data-te-modal-init
-                className="fixed top-0 left-0 z-[1055] hidden h-full w-full overflow-y-auto overflow-x-hidden outline-none"
-                id="walletModal"
-                tabIndex={-1}
-                aria-labelledby="walletModalLabel"
-                aria-hidden="true"
+            <Modal
+                isOpen={isOpen}
+                onAfterOpen={afterOpenModal}
+                onRequestClose={closeModal}
+                style={customStyles}
+                contentLabel="Example Modal"
             >
-                <div
-                    data-te-modal-dialog-ref
-                    className="pointer-events-none relative w-auto translate-y-[-50px] opacity-0 transition-all duration-300 ease-in-out justify-center"
-                >
-                    <div
-                        className="modal-content shadow-lg w-48
-                        flex justify-center flex-col pointer-events-auto
-                        bg-gray-600 rounded-md outline-none
-                        text-current border"
-                    >
-                        <div
-                            className="modal-header flex items-center
-                            justify-between p-4 border-b border-gray-200 rounded-t-md border"
-                        >
-                            <h5
-                                className="text-xl font-medium
-                                leading-normal text-white"
-                                id="walletModalLabel"
-                            >
-                                Connect Wallet
-                            </h5>
-                        </div>
-                        <div className="flex justify-around p-2">
-                            <div>
-                                <button
-                                    data-bs-dismiss="modal"
-                                    onClick={() => {
-                                        setError("");
-                                        activate(
-                                            connectors.coinbaseWallet,
-                                            (error) => {
-                                                handleError(error);
-                                            },
-                                            false
-                                        );
-                                        setProvider("coinbaseWallet");
-                                    }}
-                                >
-                                    <Image src="/images/cbw.png" alt="Coinbase Wallet Logo" width={25} height={25} />
-                                    <p>Coinbase Wallet</p>
-                                </button>
-                            </div>
-                            <div>
-                                <button
-                                    data-bs-dismiss="modal"
-                                    onClick={() => {
-                                        setError("");
-                                        activate(
-                                            connectors.injected,
-                                            (error) => {
-                                                handleError(error);
-                                            },
-                                            false
-                                        );
-                                        setProvider("injected");
-                                    }}
-                                >
-                                    <Image src="/images/mm.png" alt="Metamask Logo" width={25} height={25} />
-                                    <p>Metamask Wallet</p>
-                                </button>
-                            </div>
-                            <div>
-                                <button
-                                    data-bs-dismiss="modal"
-                                    onClick={() => {
-                                        setError("");
-                                        activate(
-                                            connectors.walletConnect,
-                                            (error) => {
-                                                handleError(error);
-                                            },
-                                            false
-                                        );
-                                        setProvider("walletConnect");
-                                    }}
-                                >
-                                    <Image src="/images/wc.png" alt="Wallet Connect Logo" width={25} height={25} />
-                                    <p>Wallet Connect</p>
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                            className="modal-footer flex flex-shrink-0 flex-wrap
-                            items-center justify-end p-4 border-t border-gray-200 rounded-b-md"
-                        >
-                            <div className="text-black">{error}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                <ProviderPicker />
+            </Modal>
         </>
     );
 }
