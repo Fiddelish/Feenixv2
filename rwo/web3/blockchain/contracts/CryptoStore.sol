@@ -27,11 +27,11 @@ contract CryptoStore is TokenApprover, FeesTaker {
         require(txInAddresses[txId] == address(0), "transacion ID already exists");
         txInAmounts[txId] = amount;
         txInAddresses[txId] = msg.sender;
-        _distributeTaxes(msg.sender, amount);
+        _distributeFees(msg.sender, amount);
         _distributePayment(msg.sender, amount);
     }
 
-    function _distributeTaxes(address sender, uint256 amount) internal {
+    function _distributeFees(address sender, uint256 amount) internal {
         _takeFees(_token, sender, amount);
     }
 

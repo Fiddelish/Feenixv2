@@ -1,0 +1,69 @@
+node {
+    def dependentJobs = []
+
+    /* Add more lines for each dependent job */
+    // dependentJobs << 'build'
+    
+    def GIT_REV
+    def img
+    def IMAGE_TAG = '18.04-3.8'
+
+    stage('Clone repository') {
+        /* Let's make sure we have the repository cloned to our workspace */
+        checkout([$class: 'GitSCM',
+            branches: [[name: '*/main']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [
+                [
+                    $class: 'SparseCheckoutPaths',
+                    sparseCheckoutPaths: [
+                        [path: 'python_base/']
+                    ]
+                ],
+                [
+                    $class: 'PathRestriction',
+                    includedRegions: 'python_base/.*'
+                ]
+            ],
+            submoduleCfg: [],
+            userRemoteConfigs: [
+                [url: 'git@github.com:quantotto/hugs.git']
+            ]
+        ])
+    }
+
+    dir("python_base") {
+        stage('docker container build') {
+            img = docker.build("quantotto/hugs_python_base:${IMAGE_TAG}")
+        }
+
+        stage('Publish to docker registry') {
+            docker.withRegistry('', 'quantotto-docker-hub') {
+                img.push()
+                img.push('latest')
+            }
+        }
+    }
+
+    stage('run dependent projects') {
+        for (String jobName in dependentJobs) {
+            triggerJob(jobName)
+        }
+    }
+}
+
+def triggerJob(jobName) {
+
+    build(
+        job: jobName,
+        parameters: [
+            /*
+            [
+                $class: 'StringParameterValue',
+                name: 'QPY_VERSION',
+                value: qpyVersion,
+            ],
+            */
+        ],
+    )
+}
