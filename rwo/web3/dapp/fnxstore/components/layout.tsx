@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import Link from "next/link";
 import Wallet from "./wallet";
-import { SearchIcon } from "@heroicons/react/outline";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 export default function Layout({ children }: { children: ReactNode }) {
     const router = useRouter();
@@ -36,14 +36,13 @@ export default function Layout({ children }: { children: ReactNode }) {
                         <div className="flex flex-col sm:flex-row pt-4 pl-2">
                             {menuItems.map(({ href, title }) => (
                                 <div key={href}>
-                                    <Link href={href}>
-                                        <a
-                                            className={`px-6 cursor-pointer hover:outline outline-stone-900 rounded-sm  ${
-                                                router.asPath === href && "font-semibold"
-                                            }`}
-                                        >
-                                            {title}
-                                        </a>
+                                    <Link
+                                        href={href}
+                                        className={`px-6 cursor-pointer hover:outline outline-stone-900 rounded-sm  ${
+                                            router.asPath === href && "font-semibold"
+                                        }`}
+                                    >
+                                        {title}
                                     </Link>
                                 </div>
                             ))}
@@ -53,7 +52,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                                     className="rounded-sm h-6 border-stone-900 focus:border-transparent focus:ring-orange-900 w-36"
                                 />
                                 <button>
-                                    <SearchIcon className="pl-1 h-4"></SearchIcon>
+                                    <MagnifyingGlassIcon className="pl-1 h-4" />
                                 </button>
                             </div>
                         </div>
