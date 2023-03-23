@@ -12,8 +12,8 @@ services:
     networks:
       - rwo_network
 
-  rwoapi:
-    image: quantotto/hugs_server_build:dev
+  rwo_api:
+    image: rwo_server_build:dev
     restart: on-failure
     ports:
       - "15500:5000"
