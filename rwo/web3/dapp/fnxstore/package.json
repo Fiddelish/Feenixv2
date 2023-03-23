@@ -17,12 +17,8 @@
     "@web3-react/walletlink-connector": "^6.2.14",
     "emotion-theming": "^11.0.0",
     "ethers": "^5.6.9",
-    "flowbite": "^1.6.3",
-    "flowbite-react": "^0.3.8",
     "next": "v12.2.3-canary.5",
     "oidc-client-ts": "^2.1.0",
-    "react": "^18.2.0",
-    "react-dom": "18.2.0",
     "react-hook-form": "^7.39.4",
     "react-oidc-context": "^2.2.0",
     "rwo_ts_sdk": "file:rwo_ts_sdk",
@@ -30,7 +26,7 @@
     "socket.io": "^4.5.3",
     "socket.io-client": "^4.5.3",
     "tw-elements": "^1.0.0-alpha13",
-    "use-react-modal": "0.0.9",
+    "use-react-modal": "",
     "yarn": "^1.22.19"
   },
   "devDependencies": {

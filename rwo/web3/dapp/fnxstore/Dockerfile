@@ -4,11 +4,8 @@ FROM node:16-alpine AS deps
 RUN apk add --no-cache libc6-compat git
 WORKDIR /app
 
-ARG NPM_TOKEN  
-COPY npm.npmrc .npmrc
-
 # Install dependencies based on the preferred package manager
-COPY package.json package-lock.json* pnpm-lock.yaml* ./
+COPY package.json ./
 RUN npm install
 
 # Rebuild the source code only when needed
@@ -24,7 +21,6 @@ COPY . .
 # ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN npm run build
-RUN rm -f .npmrc
 
 # If using npm comment out above and use below instead
 # RUN npm run build
