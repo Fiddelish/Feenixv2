@@ -10,12 +10,6 @@ const getLibrary = (provider: any) => {
 };
 
 function MyApp({ Component, pageProps }: AppProps) {
-    useEffect(() => {
-        const use = async () => {
-            (await import("tw-elements")).default;
-        };
-        use();
-    }, []);
     return (
         <Web3ReactProvider getLibrary={getLibrary}>
             <Layout>
