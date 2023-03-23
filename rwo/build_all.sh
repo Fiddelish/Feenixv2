@@ -29,7 +29,7 @@ echo ""
 echo "----- Building contracts -----"
 cd web3/blockchain
 docker build . -t rwo_hardhat:dev
-docker run -rm -v `pwd`/contracts:/work/contracts \
+docker run --rm -v `pwd`/contracts:/work/contracts \
     -v `pwd`/out:/work/out rwo_hardhat:dev \
     npx hardhat compile
 cd ../..
@@ -42,7 +42,7 @@ cd server
 cp -R ../web3/blockchain/out/abi ./
 docker build -f Dockerfile.build . -t rwo_server_build:dev
 docker build . -t rwo_server:dev
-docker run -rm -v `pwd`/sdk:/opt/rwo/code/sdk rwo_server_build:dev ./generate_sdks.sh
+docker run --rm -v `pwd`/sdk:/opt/rwo/code/sdk rwo_server_build:dev ./generate_sdks.sh
 cd ..
 echo "----- Building RWO Server and SDKs DONE -----"
 echo ""
