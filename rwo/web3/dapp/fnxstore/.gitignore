@@ -36,3 +36,4 @@ yarn-error.log*
 next-env.d.ts
 
 rwo_ts_sdk
+abi/

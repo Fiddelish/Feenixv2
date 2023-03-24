@@ -12,7 +12,6 @@ RUN npm install
 FROM node:16-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/.npmrc ./.npmrc
 COPY . .
 
 # Next.js collects completely anonymous telemetry data about general usage.
