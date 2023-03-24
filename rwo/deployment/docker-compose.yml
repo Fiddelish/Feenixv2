@@ -26,7 +26,7 @@ services:
       - rwo_network
 
   nginx:
-    image: rwonginx:dev
+    image: rwo_nginx:dev
     restart: on-failure
     ports:
       - "443:443"
@@ -37,6 +37,16 @@ services:
       - ${ACME_HTTP01_FOLDER}:/etc/nginx/acme-challenge
     networks:
       - rwo_network
+
+  hardhat:
+    image: rwo_hardhat:dev
+    restart: on-failure
+    ports:
+      - "15545:8545"
+    command: npx hardhat node
+    networks:
+      - rwo_network
+
 
 networks:
   rwo_network:

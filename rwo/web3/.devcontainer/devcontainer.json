@@ -1,0 +1,16 @@
+{
+    "name": "RWO Portal",
+    "dockerComposeFile": ["../../docker-compose-dev.yml"],
+    "service": "rwo_portal",
+    "forwardPorts": [3000],
+    "shutdownAction": "none",
+    "customizations":
+    {
+        "vscode":
+        {
+            "extensions": ["dbaeumer.vscode-eslint"]
+        }
+    },
+    "workspaceFolder": "/workspace/web3",
+    "postCreateCommand": "apk add --no-cache libc6-compat git"
+}

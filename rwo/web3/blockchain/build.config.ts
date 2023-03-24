@@ -1,6 +1,7 @@
+/* eslint-disable node/no-unpublished-import */
 import * as dotenv from "dotenv";
 
-import { HardhatUserConfig, task } from "hardhat/config";
+import { HardhatUserConfig } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
@@ -14,16 +15,6 @@ import { solidity } from "ethereum-waffle";
 chai.use(solidity);
 
 dotenv.config();
-
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
-
-  for (const account of accounts) {
-    console.log(account.address);
-  }
-});
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -39,11 +30,8 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    localrwo: {
-      url: "http://localhost:15545",
-    },
-    docker: {
-      url: "http://hardhat:8545",
+    localhost: {
+      url: "http://127.0.0.1:8545",
     },
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
@@ -59,10 +47,9 @@ const config: HardhatUserConfig = {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
   paths: {
-    sources: "./contracts",
-    tests: "./contracts/test",
+    sources: "./simple",
     cache: "./cache",
-    artifacts: "./out/abi",
+    artifacts: "./abi",
   },
 };
 

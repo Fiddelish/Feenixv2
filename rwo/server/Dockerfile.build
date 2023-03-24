@@ -1,0 +1,24 @@
+FROM rwo_python:dev
+
+RUN apt-get -yy update && apt-get -yy install npm default-jdk
+RUN npm install -g @openapitools/openapi-generator-cli
+WORKDIR /opt/rwo
+COPY requirements.txt /tmp/
+
+RUN python -m venv --copies /opt/rwo/venv
+ENV VIRTUAL_ENV /opt/rwo/venv
+ENV PATH /opt/rwo/venv/bin:$PATH
+RUN pip install -r /tmp/requirements.txt && pip install websockets==10.3 && pip install wheel
+
+WORKDIR /opt/rwo/code
+COPY src /opt/rwo/code/src
+COPY sdk /opt/rwo/code/sdk
+COPY setup.py /opt/rwo/code/
+COPY VERSION.py /opt/rwo/code/
+COPY reinstall_rwo_server.sh /opt/hugs/code/
+COPY retrieve_api_spec.py /opt/hugs/code/
+COPY generate_sdks.sh /opt/hugs/code/
+COPY openapitools.json /opt/hugs/code/
+RUN chmod ugo+x reinstall_rwo_server.sh
+RUN chmod ugo+x generate_sdks.sh
+RUN ./reinstall_rwo_server.sh

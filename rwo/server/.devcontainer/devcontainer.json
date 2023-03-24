@@ -1,0 +1,15 @@
+{
+    "name": "RWO API",
+    "dockerComposeFile": ["../../docker-compose-dev.yml"],
+    "service": "rwoapi",
+    "forwardPorts": [5000],
+    "shutdownAction": "none",
+    "customizations":
+    {
+        "vscode":
+        {
+            "extensions": ["dbaeumer.vscode-eslint"]
+        }
+    },
+    "workspaceFolder": "/workspace/server"
+}

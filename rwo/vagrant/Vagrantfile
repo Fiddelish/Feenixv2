@@ -1,0 +1,21 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/ubuntu2204"
+  config.vm.define "hugs_dev" do |hugs_dev|
+    config.vm.provider "virtualbox" do |vb|
+        vb.name = "Hugs Development"
+        vb.memory = "4096"
+        vb.cpus = "2"
+        vb.customize ['modifyvm', :id, '--graphicscontroller', 'vmsvga']
+        vb.customize ['modifyvm', :id, '--vram', '16']
+        vb.gui = true
+        
+    args = []
+    config.vm.provision "pre-requisites shell script", type: "shell", privileged: false,
+        path: "scripts/prerequisites.sh",
+        args: args
+    end
+  end
+  config.vm.network "forwarded_port", id: "hydra", guest: 15002, host: 15002, protocol: "tcp"
+  config.vm.network "forwarded_port", id: "db", guest: 15432, host: 15432, protocol: "tcp"
+  config.vm.network "forwarded_port", id: "hardhat", guest: 15545, host: 15545, protocol: "tcp"
+end
