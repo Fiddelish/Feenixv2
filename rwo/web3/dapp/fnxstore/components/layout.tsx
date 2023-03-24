@@ -1,120 +1,64 @@
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import Wallet from "./wallet";
-import {
-    SearchIcon,
-} from "@heroicons/react/outline";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
-export default function Layout(
-    {
-        children
-    }:
-    {
-        children: ReactNode
-    }
-) {
+export default function Layout({ children }: { children: ReactNode }) {
     const router = useRouter();
 
     const menuItems = [
         {
-            href: '/',
-            title: 'Products',
+            href: "/",
+            title: "Products",
         },
         {
-            href: '/partners',
-            title: 'Partners',
+            href: "/partners",
+            title: "Partners",
         },
         {
-            href: '/about',
-            title: 'About',
+            href: "/about",
+            title: "About",
         },
         {
-            href: '/contact',
-            title: 'Contact',
+            href: "/contact",
+            title: "Contact",
         },
     ];
     return (
         <>
-            <div className="flex flex-col md:flex-row flex-1">
-                <aside className="bg-gray-700 w-full md:w-60">
-                    <nav className="">
-                        <ul>
-                            <li>
-                                <Image
-                                    className=""
-                                    src={`/images/logo.png`}
-                                    width={240}
-                                    height={110}
-                                    alt=""
-                                >
-                                </Image>
-                            </li>
-                        </ul>
-                        <ul>
+            <div>
+                <header>
+                    <nav>
+                        <div className="flex justify-end border-b-2 border-white bg-gradient-to-r from-green-300 to-lime-300">
+                            <Wallet />
+                        </div>
+                        <div className="flex flex-col pt-4 pl-2 sm:flex-row">
                             {menuItems.map(({ href, title }) => (
-                                <li className='m-2 ' key={title}>
-                                    <Link href={href}>
-                                        <a
-                                        className={`flex justify-center p-2 cursor-pointer bg-blue-600 text-white rounded-xl hover:bg-blue-900 ${
-                                            router.asPath === href && 'bg-blue-800 text-white rounded-xl hover:bg-blue-900'
+                                <div key={href}>
+                                    <Link
+                                        href={href}
+                                        className={`cursor-pointer rounded-sm px-6 outline-stone-900 hover:outline  ${
+                                            router.asPath === href && "font-semibold"
                                         }`}
-                                        >
+                                    >
                                         {title}
-                                        </a>
                                     </Link>
-                                </li>
+                                </div>
                             ))}
-                        </ul>
-                        <ul className="absolute bottom-1">
-                            <li className="">
-                                <div className="flex justify-celnter items-center p-2">
-                                    <input
-                                        type="text"
-                                        className="rounded-xl h-8 text-gray-700 w-36"
-                                    />
-                                    <button>
-                                        <SearchIcon className="h-4 m-4"></SearchIcon>
-                                    </button>
-                                </div>
-                            </li>
-                            <li>
-                                <div className="flex items-center px-4 pb-4 gap-x-2">
-                                    <span className="text-sm">Supports</span>
-                                    <Image
-                                        src="/images/mm.png"
-                                        alt="Metamask Logo"
-                                        width={25}
-                                        height={25}
-                                    />
-                                    <Image
-                                        src="/images/cbw.png"
-                                        alt="Coinbase Logo"
-                                        width={25}
-                                        height={25}
-                                    />
-                                </div>
-                            </li>
-                        </ul>
+                            <div className="ml-4 flex h-6 flex-row rounded-sm border-stone-900 bg-white">
+                                <input
+                                    type="text"
+                                    className="w-36 bg-transparent pl-6 focus:border-transparent focus:ring-transparent"
+                                />
+                                <button className="absolute mt-1">
+                                    <MagnifyingGlassIcon className="h-4 pl-1" />
+                                </button>
+                            </div>
+                        </div>
                     </nav>
-                </aside>
-                <div className="min-h-screen flex flex-col w-full">
-                    <header
-                        className="sticky top-0 h-14 flex justify-between p-8 items-center font-semibold uppercase"
-                    >
-                        <div>
-                            <p>Catagori</p>
-                        </div>
-                        <div>
-                            <p>Feenix Crypto Store</p>
-                        </div>
-                        <div>
-                            <Wallet/>
-                        </div>
-                    </header>
-                    <main className="p-8 w-full">{children}</main>
-                </div>
+                </header>
+                <main className="w-full p-8">{children}</main>
             </div>
         </>
     );
