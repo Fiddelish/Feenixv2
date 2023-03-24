@@ -4,19 +4,9 @@ import { useEffect, useState } from "react";
 import { connectors } from "./connectors";
 import { truncateAddress } from "./utils";
 import Modal from "react-modal";
+import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 
 export default function Wallet() {
-    //let subtitle : string;
-    const customStyles = {
-        content: {
-            top: "50%",
-            left: "50%",
-            right: "auto",
-            bottom: "auto",
-            marginRight: "-50%",
-            transform: "translate(-50%, -50%)",
-        },
-    };
     const { library, account, active, activate, deactivate } = useWeb3React();
     const [isOpen, setIsOpen] = useState(false);
 
@@ -26,7 +16,6 @@ export default function Wallet() {
 
     function afterOpenModal() {
         // references are now sync'd and can be accessed.
-        //subtitle.style.color = '#f00';
     }
 
     function closeModal() {
@@ -106,86 +95,48 @@ export default function Wallet() {
 
     function ProviderPicker() {
         return (
-            <div
-                className="modal-content shadow-lg w-48
-        flex justify-center flex-col pointer-events-auto
-        bg-gray-600 rounded-md outline-none
-        text-current border"
-            >
-                <div
-                    className="modal-header flex items-center
-            justify-between p-4 border-b border-gray-200 rounded-t-md border"
+            <div className="flex w-48 flex-col items-center bg-transparent">
+                <button
+                    className="mb-4 flex w-full flex-row rounded-md bg-white px-4 py-6 shadow-lg"
+                    onClick={() => {
+                        setError("");
+                        activate(
+                            connectors.coinbaseWallet,
+                            (error) => {
+                                handleError(error);
+                            },
+                            false
+                        );
+                        setProvider("coinbaseWallet");
+                    }}
                 >
-                    <h5
-                        className="text-xl font-medium
-                leading-normal text-white"
-                        id="walletModalLabel"
-                    >
-                        Connect Wallet
-                    </h5>
-                </div>
-                <div className="flex justify-around p-2">
-                    <div>
-                        <button
-                            onClick={() => {
-                                setError("");
-                                activate(
-                                    connectors.coinbaseWallet,
-                                    (error) => {
-                                        handleError(error);
-                                    },
-                                    false
-                                );
-                                setProvider("coinbaseWallet");
-                            }}
-                        >
-                            <Image src="/images/cbw.png" alt="Coinbase Wallet Logo" width={25} height={25} />
-                            <p>Coinbase Wallet</p>
-                        </button>
-                    </div>
-                    <div>
-                        <button
-                            onClick={() => {
-                                setError("");
-                                activate(
-                                    connectors.injected,
-                                    (error) => {
-                                        handleError(error);
-                                    },
-                                    false
-                                );
-                                setProvider("injected");
-                            }}
-                        >
-                            <Image src="/images/mm.png" alt="Metamask Logo" width={25} height={25} />
-                            <p>Metamask Wallet</p>
-                        </button>
-                    </div>
-                    <div>
-                        <button
-                            onClick={() => {
-                                setError("");
-                                activate(
-                                    connectors.walletConnect,
-                                    (error) => {
-                                        handleError(error);
-                                    },
-                                    false
-                                );
-                                setProvider("walletConnect");
-                            }}
-                        >
-                            <Image src="/images/wc.png" alt="Wallet Connect Logo" width={25} height={25} />
-                            <p>Wallet Connect</p>
-                        </button>
-                    </div>
-                </div>
-                <div
-                    className="modal-footer flex flex-shrink-0 flex-wrap
-            items-center justify-end p-4 border-t border-gray-200 rounded-b-md"
+                    <Image src="/images/cbw.png" alt="Coinbase Wallet Logo" width={25} height={25} />
+                    <span className="ml-2">Coinbase Wallet</span>
+                </button>
+                <button
+                    className="mb-4 flex w-full flex-row rounded-md bg-white px-4 py-6 shadow-lg"
+                    onClick={() => {
+                        setError("");
+                        activate(
+                            connectors.injected,
+                            (error) => {
+                                handleError(error);
+                            },
+                            false
+                        );
+                        setProvider("injected");
+                    }}
                 >
-                    <div className="text-black">{error}</div>
-                </div>
+                    <Image className="" src="/images/mm.png" alt="Metamask Logo" width={25} height={25} />
+                    <span className="ml-2">Metamask Wallet</span>
+                </button>
+
+                {!!error ? (
+                    <div className="flex flex-row items-center text-red-700">
+                        <ExclamationCircleIcon width={32} height={32} />
+                        <span className="ml-2 text-sm">{error}</span>
+                    </div>
+                ) : null}
             </div>
         );
     }
@@ -196,21 +147,24 @@ export default function Wallet() {
                 {!active ? (
                     <button
                         type="button"
-                        className="px-6
+                        className="rounded-md
+                            bg-violet-500
+                            px-6
                             py-2.5
-                            bg-orange-500
-                            text-white
-                            font-semibold
                             text-xs
-                            leading-tight
+                            font-semibold
                             uppercase
-                            rounded-md
-                            hover:bg-orange-600 hover:shadow-lg
-                            focus:bg-orange-600 focus:shadow-lg focus:outline-none focus:ring-0
-                            active:bg-orange-800 active:shadow-lg
+                            leading-tight
+                            text-white
+                            shadow-md
+                            shadow-violet-900
                             transition
-                            duration-150
-                            ease-in-out"
+                            duration-150 ease-in-out
+                            hover:bg-violet-600 focus:bg-violet-700 focus:outline-none
+                            focus:ring-0
+                            active:bg-violet-700
+                            active:shadow-sm
+                            active:shadow-violet-900"
                         onClick={openModal}
                     >
                         Connect Wallet
@@ -218,42 +172,58 @@ export default function Wallet() {
                 ) : (
                     <button
                         type="button"
-                        className="px-6 py-2.5
-                                bg-orange-500
-                                text-white
-                                font-semibold
-                                text-xs
-                                leading-tight
-                                uppercase
-                                rounded-md
-                                shadow-md
-                                hover:bg-orange-600 hover:shadow-lg
-                                focus:bg-orange-600 focus:shadow-lg focus:outline-none focus:ring-0
-                                active:bg-orange-800 active:shadow-lg
-                                transition
-                                duration-150
-                                ease-in-out"
+                        className="rounded-md
+                        bg-violet-500
+                        px-6
+                        py-2.5
+                        text-xs
+                        font-semibold
+                        uppercase
+                        leading-tight
+                        text-white
+                        shadow-md
+                        shadow-violet-900
+                        transition
+                        duration-150 ease-in-out
+                        hover:bg-violet-600 focus:bg-violet-700 focus:outline-none
+                        focus:ring-0
+                        active:bg-violet-700
+                        active:shadow-sm
+                        active:shadow-violet-900"
                         onClick={disconnect}
                     >
                         Disconnect Wallet
                     </button>
                 )}
                 {!account ? (
-                    <div className="text-white flex flex-row items-center py-2 gap-x-2">
+                    <div className="flex flex-row items-center gap-x-2 py-2">
                         <span className="text-sm">Supports</span>
                         <Image src="/images/mm.png" alt="Metamask Logo" width={25} height={25} />
                         <Image src="/images/cbw.png" alt="Coinbase Logo" width={25} height={25} />
                     </div>
                 ) : (
-                    <p>{`Account: ${truncateAddress(account)}`}</p>
+                    <div className="">{`Account: ${truncateAddress(account)}`}</div>
                 )}
             </div>
             <Modal
                 isOpen={isOpen}
                 onAfterOpen={afterOpenModal}
                 onRequestClose={closeModal}
-                style={customStyles}
-                contentLabel="Example Modal"
+                style={{
+                    content: {
+                        top: "33%",
+                        left: "50%",
+                        right: "auto",
+                        bottom: "auto",
+                        marginRight: "-50%",
+                        transform: "translate(-50%, -33%)",
+                        backgroundColor: "#f5f5f4",
+                    },
+                    overlay: {
+                        background: "rgba(0,0,0,0.8)",
+                    },
+                }}
+                ariaHideApp={false}
             >
                 <ProviderPicker />
             </Modal>
