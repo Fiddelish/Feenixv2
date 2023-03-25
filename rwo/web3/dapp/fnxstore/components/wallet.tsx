@@ -22,7 +22,7 @@ export default function Wallet() {
         setIsOpen(false);
     }
     const [error, setError] = useState("");
-    const [network, setNetwork] = useState(undefined);
+    const [network, setNetwork] = useState("");
     const [chainId, setChainId] = useState("");
     const [signedMessage, setSignedMessage] = useState("");
     const [signature, setSignature] = useState("");
@@ -92,7 +92,7 @@ export default function Wallet() {
         setNetwork("");
         setMessage("");
         setSignature("");
-        setVerified(undefined);
+        setVerified(false);
     };
 
     const disconnect = () => {
