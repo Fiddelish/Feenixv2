@@ -2,14 +2,22 @@ from typing import List
 from sqlalchemy.orm import Session
 from fastapi import (
     APIRouter,
-    Path,
-    Depends
+    Depends,
+    HTTPException,
 )
 
 from ..decor import rollback_error500
-from ..models import Order
+from ..models import (
+    Order,
+    OrderStatus,
+    RetrieveRequest,
+    RetrieveResponse,
+    FulfillRequest,
+    FulfillResponse,
+)
 from ...db import crud
 from ..dependencies import get_db_session
+from ...common import require
 
 router = APIRouter(
     prefix="/v1/order",
@@ -27,26 +35,34 @@ router = APIRouter(
 def add_order(order: Order, db: Session = Depends(get_db_session)):
     return crud.add_order(order, db)
 
-@router.get(
-    "/status/{order_status}",
-    operation_id="get_orders_by_status",
-    response_model=List[Order]
+@router.post(
+    "/retrieve",
+    operation_id="retrieve_order",
+    response_model=RetrieveResponse
 )
 @rollback_error500()
-def get_orders_by_status(
-    order_status: int = Path(..., alias="order_status"),
-    db: Session = Depends(get_db_session)
-):
-    return crud.get_orders_by_status(order_status, db)
+def retrieve_order(rr: RetrieveRequest, db: Session = Depends(get_db_session)):
+    order = crud.get_order_by_tx_id(rr.tx_id, db)
+    resp = RetrieveResponse(verified=False, order=None)
+    if (not order or not order.token == rr.token or not order.status == OrderStatus.pending.value):
+        return resp
+    order.token = ""
+    resp.verified = True
+    resp.order = order
+    return resp
 
-@router.get(
-    "/id/{order_id}",
-    operation_id="get_order_by_id",
-    response_model=Order
+@router.post(
+    "/fulfill",
+    operation_id="fulfill_order",
+    response_model=FulfillResponse
 )
 @rollback_error500()
-def get_order_by_id(
-    order_id: int = Path(..., alias="order_id"),
-    db: Session = Depends(get_db_session)
-):
-    return crud.get_order_by_id(order_id, db)
+def fulfill_order(rr: FulfillRequest, db: Session = Depends(get_db_session)):
+    order = crud.get_order_by_tx_id_with_lock(rr.tx_id, db)
+    resp = FulfillResponse(fullfilled=False)
+    if (not order or not order.token == rr.token or not order.status == OrderStatus.pending.value):
+        return resp
+    order.status = OrderStatus.fulfilled.value
+    crud.add_order(order, db)
+    resp.fulfilled = True
+    return resp

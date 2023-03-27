@@ -52,10 +52,18 @@ def delete_product_by_id(product_id: int, db: Session):
 #
 # Orders
 #
-def get_order_by_id(order_id: int, db: Session):
+def get_order_by_id(order_id: int, db: Session) -> dbmodels.Order:
     return db.query(dbmodels.Order).filter(dbmodels.Order.id == order_id).first()
 
-def get_orders_by_status(order_status: apimodels.OrderStatus, db: Session):
+def get_order_by_tx_id_with_lock(tx_id: str, db: Session) -> dbmodels.Order:
+    return (
+        db.query(dbmodels.Order)
+        .with_for_update()
+        .filter(dbmodels.Order.tx_id == tx_id)
+        .first()
+    )
+
+def get_orders_by_status(order_status: apimodels.OrderStatus, db: Session) -> List[dbmodels.Order]:
     return db.query(dbmodels.Order).filter(dbmodels.Order.status == order_status).all()
 
 def add_order(order: apimodels.Order, db: Session) -> dbmodels.Order:
@@ -67,7 +75,8 @@ def add_order(order: apimodels.Order, db: Session) -> dbmodels.Order:
     db_order.email = order.email
     db_order.wallet = order.wallet
     db_order.quantity = order.quantity
-    db_order.internal_tx_id = order.internal_tx_id
+    db_order.tx_id = order.tx_id
+    db_order.token = order.token
     db_order.tx_hash = order.tx_hash
     db_order.status = order.status
     db.add(db_order)

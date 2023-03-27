@@ -30,6 +30,7 @@ class Order(Base):
     wallet = Column(String(255), nullable=False)
     quantity = Column(Integer, nullable=False)
     internal_tx_id = Column(String(255), unique=True, nullable=False)
+    token = Column(String(255), unique=True, nullable=False)
     tx_hash = Column(String(255), unique=True, nullable=True)
     status = Column(String(32), nullable=False)
     CheckConstraint("quantity > 0")

@@ -1,4 +1,3 @@
-import ProductList from "@/components/product_list";
 
 export default function Contact() {
     return (
@@ -6,4 +5,4 @@ export default function Contact() {
             <h2>Contact us at <a href="https://projectfeenix.games" target="window" className="text-red-500">Project Feenix</a></h2>
         </div>
     );
-  }
+}

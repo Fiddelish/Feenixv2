@@ -5,6 +5,7 @@ from enum import Enum
 class OrderStatus(str, Enum):
     pending = "pending"
     paid = "paid"
+    fulfilled = "fulfilled"
     cancelled = "cancelled"
     failed = "failed"
 
@@ -25,9 +26,25 @@ class Order(BaseModel):
     email: str
     wallet: str
     quantity: int
-    internal_tx_id: str
+    tx_id: str
+    token: str
     tx_hash: Optional[str] = Field(None, nullable=True)
     status: OrderStatus
 
     class Config:
         orm_mode = True
+
+class RetrieveRequest(BaseModel):
+    tx_id: str
+    token: str
+
+class RetrieveResponse(BaseModel):
+    verified: bool
+    order: Optional[Order] = Field(None, nullable=True)
+
+class FulfillRequest(BaseModel):
+    tx_id: str
+    token: str
+
+class FulfillResponse(BaseModel):
+    fulfilled: bool
