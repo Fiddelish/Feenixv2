@@ -3,7 +3,7 @@
     "dockerComposeFile": [
         "../../docker-compose-dev.yml"
     ],
-    "service": "rwo_api",
+    "service": "rwoapi",
     "forwardPorts": [
         5000
     ],
