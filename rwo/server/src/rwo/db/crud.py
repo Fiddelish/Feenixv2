@@ -55,6 +55,13 @@ def delete_product_by_id(product_id: int, db: Session):
 def get_order_by_id(order_id: int, db: Session) -> dbmodels.Order:
     return db.query(dbmodels.Order).filter(dbmodels.Order.id == order_id).first()
 
+def get_order_by_tx_id(tx_id: str, db: Session) -> dbmodels.Order:
+    return (
+        db.query(dbmodels.Order)
+        .filter(dbmodels.Order.tx_id == tx_id)
+        .first()
+    )
+
 def get_order_by_tx_id_with_lock(tx_id: str, db: Session) -> dbmodels.Order:
     return (
         db.query(dbmodels.Order)
