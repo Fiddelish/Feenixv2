@@ -39,6 +39,9 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
+    hardhat: {
+      allowUnlimitedContractSize: true,
+    },
     localrwo: {
       url: "http://localhost:15545",
     },
