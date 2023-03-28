@@ -21,6 +21,7 @@
     "react-hook-form": "^7.43.8",
     "react-modal": "^3.16.1",
     "rwo_ts_sdk": "file:rwo_ts_sdk",
+    "rxjs": "^7.5.7",
     "yarn": "^1.22.19"
   },
   "devDependencies": {

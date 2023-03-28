@@ -1,9 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useWeb3React} from "@web3-react/core";
 import Image from "next/image";
 import { Product } from "rwo_ts_sdk";
+import { combineLatest } from "rxjs";
 import { UserIcon as UserIconSolid } from "@heroicons/react/24/solid";
 import { UserIcon as UserIconOutline } from "@heroicons/react/24/outline";
 import { FormProvider, useForm, useFormContext, useWatch } from "react-hook-form";
+import { getCryptoStoreContract } from "@/contract_wrappers/crypto_store";
+import { ethers, BigNumber, ContractTransaction } from "ethers";
+import { toJSNumber } from "./currency";
 
 const validateEmail = (email: string) =>
     // eslint-disable-next-line no-useless-escape
@@ -17,7 +22,12 @@ interface IEmailInputs {
 }
 
 export default function Buy({ product }: { product: Product }) {
-    const [shouldApprove, setShouldApprove] = useState<Boolean>(true);
+    const { account, active } = useWeb3React();
+    const [ approvedAmount, setApprovedAmount ] = useState<BigNumber>(BigNumber.from(0));
+    const [ productPrice, setProductPrice ] = useState(0);
+    const [ totalFees, setTotalFees ] = useState(0);
+    const [ fullPrice, setFullPrice ] = useState<BigNumber>(BigNumber.from(0));
+    const [ shouldApprove, setShouldApprove ] = useState<Boolean>(true);
     const formMethods = useForm<IEmailInputs>({ mode: "onSubmit" });
 
     function approveTokens() {
@@ -82,6 +92,47 @@ export default function Buy({ product }: { product: Product }) {
                 />
             </div>
         );
+    }
+
+    useEffect(() => {
+        if (!active) {
+            return;
+        }
+        updateApprovedAmount();
+    }, []);
+
+    function updateApprovedAmount() {
+        const cryptoStoreContract = getCryptoStoreContract();
+        combineLatest({
+            decimals: cryptoStoreContract.GetTokenDecimals(),
+            allowance: cryptoStoreContract.GetAllowance(account),
+            productPrice: cryptoStoreContract.productPrices(product.id),
+            totalFees: cryptoStoreContract.TotalFees(),
+            fullPrice: cryptoStoreContract.GetPriceWithFees(product.id),
+        }).subscribe(
+            data => {
+                const decimals: number = data.decimals as number;
+                const allowance: BigNumber = data.allowance as BigNumber;
+                setProductPrice(toJSNumber(data.productPrice as BigNumber, decimals));
+                setTotalFees(data.totalFees as number);
+                setFullPrice(data.fullPrice as BigNumber);
+                if (allowance < fullPrice) {
+                    setApprovedAmount(BigNumber.from(0));
+                } else {
+                    setApprovedAmount(fullPrice);
+                }
+            }
+        );
+    }
+
+    async function approve() {
+        const cryptoStoreContract = getCryptoStoreContract();
+        const decimals = await cryptoStoreContract.GetTokenDecimals();
+        const txApproval: ContractTransaction = await cryptoStoreContract.ApproveTokens(
+            fullPrice
+        );
+        await txApproval.wait();
+        updateApprovedAmount();
     }
 
     return (

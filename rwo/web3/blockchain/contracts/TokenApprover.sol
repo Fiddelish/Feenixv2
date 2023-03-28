@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import "./IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "./Ownable.sol";
 
 contract TokenApprover is Ownable {
 
-    IERC20 _token;
+    IERC20Metadata _token;
 
     constructor () {
-        _token = IERC20(address(0));
+        _token = IERC20Metadata(address(0));
     }
 
     function SetTokenAddress(address tokenAddress) external OnlyOwner {
-        _token = IERC20(tokenAddress);
+        _token = IERC20Metadata(tokenAddress);
     }
 
   
@@ -30,5 +30,9 @@ contract TokenApprover is Ownable {
    
     function GetAllowance() public view returns(uint256){
         return _token.allowance(msg.sender, address(this));
+    }
+
+    function GetTokenDecimals() public view returns(uint256){
+        return _token.decimals();
     }
 }

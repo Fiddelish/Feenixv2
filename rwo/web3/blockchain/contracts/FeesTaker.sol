@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import "./Ownable.sol";
-import "./IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 contract FeesTaker is Ownable {
 
@@ -54,7 +54,7 @@ contract FeesTaker is Ownable {
         require(TotalFees <= 10, "Must keep fees at 10% or less");
     }
 
-    function _takeFees(IERC20 token, address sender, uint256 amount) internal {
+    function _takeFees(IERC20Metadata token, address sender, uint256 amount) internal {
         uint256 dev1Amount = Dev1Fee * amount / 100;
         uint256 dev2Amount = Dev2Fee * amount / 100;
         uint256 dev3Amount = Dev3Fee * amount / 100;

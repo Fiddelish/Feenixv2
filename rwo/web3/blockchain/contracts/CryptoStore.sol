@@ -20,6 +20,11 @@ contract CryptoStore is TokenApprover, FeesTaker {
         return _token.balanceOf(address(this));
     }
 
+    function GetPriceWithFees(uint256 productId) public view returns(uint256) {
+        require(productPrices[productId] > 0, "Invalid product ID");
+        return productPrices[productId]  * (100 + TotalFees) / 100;
+    }
+
     function MakePayment(uint256 productId, uint256 amount, string memory txId) public {
         require(productPrices[productId] > 0, "Invalid product ID");
         require(productPrices[productId] == amount, "Wrong amount sent");
