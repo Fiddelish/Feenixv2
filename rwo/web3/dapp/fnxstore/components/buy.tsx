@@ -30,17 +30,19 @@ export default function Buy({ product }: { product: Product }) {
         setShouldApprove(true);
     }
 
-    function ApproveButton() {
+    function ActionButton() {
         const { control } = useFormContext();
         const email1 = useWatch({ control, name: "email1", defaultValue: null });
         const email2 = useWatch({ control, name: "email2", defaultValue: null });
-        return email1 === email2 && validateEmail(email1) && validateEmail(email2) ? (
+        const email1Valid = validateEmail(email1);
+        const email2Valid = validateEmail(email2);
+        return email1Valid && email2Valid && email1 === email2 ? (
             <button
                 className="w-full rounded-sm bg-violet-500
-    py-2 px-4 font-bold text-white hover:bg-violet-600"
-                onClick={approveTokens}
+                py-2 px-4 font-bold text-white hover:bg-violet-600"
+                onClick={!!shouldApprove ? approveTokens : purchaseProduct}
             >
-                Approve {product.price} USDC
+                {!!shouldApprove ? "Approve" : "Purchase for"} {product.price} USDC
             </button>
         ) : (
             <button
@@ -48,23 +50,12 @@ export default function Buy({ product }: { product: Product }) {
                 className="w-full rounded-sm bg-stone-500
             py-2 px-4 font-bold text-white"
             >
-                Need valid email and confirmation
+                {!email1Valid ? "Need valid email..." : "... and email confirmation"}
             </button>
         );
     }
 
-    function PurchaseButton() {
-        return (
-            <button
-                className="w-full rounded-sm bg-violet-500
-py-2 px-4 font-bold text-white hover:bg-violet-600"
-                onClick={purchaseProduct}
-            >
-                Purchase for {product.price} USDC
-            </button>
-        );
-    }
-    function UserIconWatch({ id }: { id: string }) {
+    function UserIcon({ id }: { id: string }) {
         const { control } = useFormContext();
         return !!validateEmail(useWatch({ control, name: id, defaultValue: null })) ? (
             <UserIconSolid className="mt-1 h-4 text-stone-600" />
@@ -77,7 +68,7 @@ py-2 px-4 font-bold text-white hover:bg-violet-600"
 
         return (
             <div className="flex flex-row rounded-sm border bg-white px-2 py-1">
-                <UserIconWatch id={id} />
+                <UserIcon id={id} />
                 <input
                     type="text"
                     placeholder="user@example.com"
@@ -114,7 +105,9 @@ py-2 px-4 font-bold text-white hover:bg-violet-600"
                         <EmailInput id="email1" />
                         <EmailInput id="email2" />
                     </div>
-                    <div className="flex w-full">{shouldApprove ? <ApproveButton /> : <PurchaseButton />}</div>
+                    <div className="flex w-full">
+                        <ActionButton />
+                    </div>
                 </form>
             </FormProvider>
         </div>
