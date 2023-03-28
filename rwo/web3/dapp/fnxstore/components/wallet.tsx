@@ -22,7 +22,7 @@ export default function Wallet() {
         setIsOpen(false);
     }
     const [error, setError] = useState("");
-    const [network, setNetwork] = useState(undefined);
+    const [network, setNetwork] = useState("");
     const [chainId, setChainId] = useState("");
     const [signedMessage, setSignedMessage] = useState("");
     const [signature, setSignature] = useState("");
@@ -34,7 +34,7 @@ export default function Wallet() {
         setError(error.message);
     }
 
-    const handleNetwork = (e) => {
+    const handleNetwork = (e: any) => {
         const id = e.target.value;
         setNetwork(id);
     };
@@ -48,7 +48,7 @@ export default function Wallet() {
             });
             setSignedMessage(message);
             setSignature(signature);
-        } catch (error) {
+        } catch (error: any) {
             setError(error);
         }
     };
@@ -60,31 +60,39 @@ export default function Wallet() {
                 method: "personal_ecRecover",
                 params: [signedMessage, signature],
             });
-            setVerified(verify === account.toLowerCase());
-        } catch (error) {
-            setError(error);
+            setVerified(verify === account?.toLowerCase());
+        } catch (error: any) {
+            setError(error?.toString());
         }
     };
 
     useEffect(() => {
         const provider = window.localStorage.getItem("provider");
-        if (provider) {
-            activate(connectors[provider]).then(() => {
+        if (provider === "injected") {
+            activate(connectors.injected).then(() => {
+                console.log(account, active, provider, connectors);
+            });
+        } else if (provider === "walletConnect") {
+            activate(connectors.walletConnect).then(() => {
+                console.log(account, active, provider, connectors);
+            });
+        } else if (provider === "coinbaseWallet") {
+            activate(connectors.coinbaseWallet).then(() => {
                 console.log(account, active, provider, connectors);
             });
         }
     }, [activate]);
 
-    const setProvider = (type) => {
+    const setProvider = (type: string) => {
         window.localStorage.setItem("provider", type);
     };
 
     const refreshState = () => {
-        window.localStorage.setItem("provider", undefined);
+        window.localStorage.setItem("provider", "");
         setNetwork("");
         setMessage("");
         setSignature("");
-        setVerified(undefined);
+        setVerified(false);
     };
 
     const disconnect = () => {
