@@ -8,6 +8,7 @@ async function main() {
   const randomToken = await randomTokenFactory.deploy();
   await randomToken.deployed();
   console.log(`Token contract deployed to ${randomToken.address}`);
+  const decimals = await randomToken.decimals();
 
   console.log("Deploying Crypto Store");
   const cryptoStoreFactory = await ethers.getContractFactory("CryptoStore");
@@ -16,6 +17,17 @@ async function main() {
   console.log(`Crypto Store contract deployed to ${cryptoStore.address}`);
   await cryptoStore.SetTokenAddress(randomToken.address);
   console.log("Crypto Store: token address set");
+
+  await cryptoStore.AddOrUpdateProduct(
+    1,
+    ethers.utils.parseUnits("16.99", decimals)
+  );
+  console.log("Added product 1");
+  await cryptoStore.AddOrUpdateProduct(
+    2,
+    ethers.utils.parseUnits("21.50", decimals)
+  );
+  console.log("Added product 2");
 }
 
 // We recommend this pattern to be able to use async/await everywhere

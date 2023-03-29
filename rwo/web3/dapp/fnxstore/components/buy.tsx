@@ -6,7 +6,7 @@ import { combineLatest } from "rxjs";
 import { UserIcon as UserIconSolid } from "@heroicons/react/24/solid";
 import { UserIcon as UserIconOutline } from "@heroicons/react/24/outline";
 import { FormProvider, useForm, useFormContext, useWatch } from "react-hook-form";
-import { getCryptoStoreContract } from "@/contract_wrappers/crypto_store";
+import { getCryptoStoreContract, getTokenContract, CRYPTO_STORE_CONTRACT } from "@/contract_wrappers/contracts";
 import { ethers, BigNumber, ContractTransaction } from "ethers";
 import { toJSNumber } from "./currency";
 
@@ -24,8 +24,8 @@ interface IEmailInputs {
 export default function Buy({ product }: { product: Product }) {
     const { account, active } = useWeb3React();
     const [ approvedAmount, setApprovedAmount ] = useState<BigNumber>(BigNumber.from(0));
-    const [ productPrice, setProductPrice ] = useState(0);
-    const [ totalFees, setTotalFees ] = useState(0);
+    const [ productPrice, setProductPrice ] = useState("");
+    const [ totalFees, setTotalFees ] = useState("");
     const [ fullPrice, setFullPrice ] = useState<BigNumber>(BigNumber.from(0));
     const [ shouldApprove, setShouldApprove ] = useState<Boolean>(true);
     const formMethods = useForm<IEmailInputs>({ mode: "onSubmit" });
@@ -75,7 +75,6 @@ export default function Buy({ product }: { product: Product }) {
     }
     function EmailInput({ id }: { id: string }) {
         const { register } = useFormContext();
-
         return (
             <div className="flex flex-row rounded-sm border bg-white px-2 py-1">
                 <UserIcon id={id} />
@@ -105,7 +104,7 @@ export default function Buy({ product }: { product: Product }) {
         const cryptoStoreContract = getCryptoStoreContract();
         combineLatest({
             decimals: cryptoStoreContract.GetTokenDecimals(),
-            allowance: cryptoStoreContract.GetAllowance(account),
+            allowance: cryptoStoreContract.GetAllowance(),
             productPrice: cryptoStoreContract.productPrices(product.id),
             totalFees: cryptoStoreContract.TotalFees(),
             fullPrice: cryptoStoreContract.GetPriceWithFees(product.id),
@@ -114,7 +113,7 @@ export default function Buy({ product }: { product: Product }) {
                 const decimals: number = data.decimals as number;
                 const allowance: BigNumber = data.allowance as BigNumber;
                 setProductPrice(toJSNumber(data.productPrice as BigNumber, decimals));
-                setTotalFees(data.totalFees as number);
+                setTotalFees((data.totalFees as BigNumber).toString());
                 setFullPrice(data.fullPrice as BigNumber);
                 if (allowance < fullPrice) {
                     setApprovedAmount(BigNumber.from(0));
@@ -126,9 +125,9 @@ export default function Buy({ product }: { product: Product }) {
     }
 
     async function approve() {
-        const cryptoStoreContract = getCryptoStoreContract();
-        const decimals = await cryptoStoreContract.GetTokenDecimals();
-        const txApproval: ContractTransaction = await cryptoStoreContract.ApproveTokens(
+        const tokenContract = getTokenContract();
+        const txApproval: ContractTransaction = await tokenContract.approve(
+            CRYPTO_STORE_CONTRACT,
             fullPrice
         );
         await txApproval.wait();
@@ -149,6 +148,7 @@ export default function Buy({ product }: { product: Product }) {
             <div className="my-2 px-8 py-2">
                 <div className="text-xl font-bold">{product.name}</div>
                 <div className="text-md ">{product.description}</div>
+                <div className="text-md ">{productPrice} USDC + fees ({totalFees}%)</div>
             </div>
             <FormProvider {...formMethods}>
                 <form>
