@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useWeb3React} from "@web3-react/core";
 import Image from "next/image";
 import Modal from "react-modal";
 import { Product } from "rwo_ts_sdk";
@@ -6,6 +7,8 @@ import Buy from "./buy";
 
 export default function ProductCard({ product }: { product: Product }) {
     const [isOpen, setIsOpen] = useState(false);
+    const { active } = useWeb3React();
+
     function openModal() {
         setIsOpen(true);
     }
@@ -44,8 +47,9 @@ export default function ProductCard({ product }: { product: Product }) {
                         className="w-32 rounded-md
                         bg-violet-500
                         py-2
-                        px-4 font-bold text-white shadow-md shadow-violet-900 hover:bg-violet-600 focus:ring-0 focus:ring-offset-0 active:shadow-sm active:shadow-violet-900"
+                        px-4 font-bold text-white shadow-md shadow-violet-900 hover:bg-violet-600 focus:ring-0 focus:ring-offset-0 disabled:bg-gray-400 disabled:shadow-gray-900 disabled:shadow-sm active:shadow-sm active:shadow-violet-900"
                         onClick={openModal}
+                        disabled={!active}
                     >
                         {product.price} USDC
                     </button>

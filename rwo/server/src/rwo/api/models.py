@@ -34,17 +34,23 @@ class Order(BaseModel):
     class Config:
         orm_mode = True
 
-class RetrieveRequest(BaseModel):
+class SubmitOrderRequest(BaseModel):
+    product_id: str
+    email: str
+    wallet: str
+    quantity: int
+
+class RetrieveOrderRequest(BaseModel):
     tx_id: str
     token: str
 
-class RetrieveResponse(BaseModel):
+class RetrieveOrderResponse(BaseModel):
     verified: bool
     order: Optional[Order] = Field(None, nullable=True)
 
-class FulfillRequest(BaseModel):
+class FulfillOrderRequest(BaseModel):
     tx_id: str
     token: str
 
-class FulfillResponse(BaseModel):
+class FulfillOrderResponse(BaseModel):
     fulfilled: bool

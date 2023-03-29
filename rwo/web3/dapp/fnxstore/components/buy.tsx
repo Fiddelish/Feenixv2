@@ -23,21 +23,24 @@ interface IEmailInputs {
 
 export default function Buy({ product }: { product: Product }) {
     const { account, active } = useWeb3React();
-    const [ approvedAmount, setApprovedAmount ] = useState<BigNumber>(BigNumber.from(0));
     const [ productPrice, setProductPrice ] = useState("");
     const [ totalFees, setTotalFees ] = useState("");
     const [ fullPrice, setFullPrice ] = useState<BigNumber>(BigNumber.from(0));
-    const [ shouldApprove, setShouldApprove ] = useState<Boolean>(true);
+    const [ shouldApprove, setShouldApprove ] = useState(false);
     const formMethods = useForm<IEmailInputs>({ mode: "onSubmit" });
 
-    function approveTokens() {
-        alert(`Approving ${product.price} tokens`);
-        setShouldApprove(!shouldApprove);
+    async function approve() {
+        const tokenContract = getTokenContract();
+        const txApproval: ContractTransaction = await tokenContract.approve(
+            CRYPTO_STORE_CONTRACT,
+            fullPrice
+        );
+        await txApproval.wait();
+        updateApproval();
     }
 
     function purchaseProduct() {
         alert(`Purchasing ${product.name}`);
-        setShouldApprove(true);
     }
 
     function ActionButton() {
@@ -50,9 +53,9 @@ export default function Buy({ product }: { product: Product }) {
             <button
                 className="w-full rounded-sm bg-violet-500
                 py-2 px-4 font-bold text-white hover:bg-violet-600"
-                onClick={!!shouldApprove ? approveTokens : purchaseProduct}
+                onClick={shouldApprove ? approve : purchaseProduct}
             >
-                {!!shouldApprove ? "Approve" : "Purchase for"} {product.price} USDC
+                {shouldApprove ? "Approve" : "Purchase for"} {productPrice} + fees ({totalFees}%) USDC
             </button>
         ) : (
             <button
@@ -97,10 +100,10 @@ export default function Buy({ product }: { product: Product }) {
         if (!active) {
             return;
         }
-        updateApprovedAmount();
+        updateApproval();
     }, []);
 
-    function updateApprovedAmount() {
+    function updateApproval() {
         const cryptoStoreContract = getCryptoStoreContract();
         combineLatest({
             decimals: cryptoStoreContract.GetTokenDecimals(),
@@ -116,22 +119,12 @@ export default function Buy({ product }: { product: Product }) {
                 setTotalFees((data.totalFees as BigNumber).toString());
                 setFullPrice(data.fullPrice as BigNumber);
                 if (allowance < fullPrice) {
-                    setApprovedAmount(BigNumber.from(0));
+                    setShouldApprove(true);
                 } else {
-                    setApprovedAmount(fullPrice);
+                    setShouldApprove(false);
                 }
             }
         );
-    }
-
-    async function approve() {
-        const tokenContract = getTokenContract();
-        const txApproval: ContractTransaction = await tokenContract.approve(
-            CRYPTO_STORE_CONTRACT,
-            fullPrice
-        );
-        await txApproval.wait();
-        updateApprovedAmount();
     }
 
     return (
