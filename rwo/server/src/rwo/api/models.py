@@ -22,7 +22,7 @@ class Product(BaseModel):
 
 class Order(BaseModel):
     id: int
-    product_id: str
+    product_id: int
     email: str
     wallet: str
     quantity: int
@@ -35,10 +35,21 @@ class Order(BaseModel):
         orm_mode = True
 
 class SubmitOrderRequest(BaseModel):
-    product_id: str
+    product_id: int
     email: str
     wallet: str
     quantity: int
+
+class SubmitOrderResponse(BaseModel):
+    tx_id: str
+
+class VerifyOrderPaymentRequest(BaseModel):
+    tx_id: str
+    tx_hash: str
+    amount: int
+
+class VerifyOrderPaymentResponse(BaseModel):
+    verified: bool
 
 class RetrieveOrderRequest(BaseModel):
     tx_id: str

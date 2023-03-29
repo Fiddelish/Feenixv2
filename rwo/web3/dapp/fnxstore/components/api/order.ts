@@ -3,7 +3,7 @@ import {
     OrderApi
 } from "rwo_ts_sdk";
 
-export function orderApi(): OrderApi {
+export function getOrderApi(): OrderApi {
     const myApi = new OrderApi(getApiSettings());
     return myApi;
 }

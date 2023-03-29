@@ -12,6 +12,8 @@ from ..models import (
     OrderStatus,
     SubmitOrderRequest,
     SubmitOrderResponse,
+    VerifyOrderPaymentRequest,
+    VerifyOrderPaymentResponse,
     RetrieveOrderRequest,
     RetrieveOrderResponse,
     FulfillOrderRequest,
@@ -20,6 +22,10 @@ from ..models import (
 from ...db import crud
 from ..dependencies import get_db_session
 from ...common import require
+from ...common.blockchain import (
+    generate_tx_id,
+    verify_hash,
+)
 
 router = APIRouter(
     prefix="/v1/order",
@@ -29,14 +35,39 @@ router = APIRouter(
 )
 
 @router.put(
-    "/",
+    "/submit",
     operation_id="submit_order",
     response_model=SubmitOrderResponse
 )
 @rollback_error500()
 def submit_order(sor: SubmitOrderRequest, db: Session = Depends(get_db_session)):
-    order = Order()
-    return crud.add_order(order, db)
+    tx_id = generate_tx_id()
+    token = generate_token()
+    order = Order(
+        **sor.dict(),
+        status=OrderStatus.pending,
+        tx_id=tx_id,
+        token=token
+    )
+    crud.add_order(order, db)
+    return SubmitOrderResponse(tx_id=tx_id)
+
+@router.put(
+    "/verify",
+    operation_id="verify_order",
+    response_model=VerifyOrderPaymentResponse
+)
+@rollback_error500()
+def verify_order(vopr: VerifyOrderPaymentRequest, db: Session = Depends(get_db_session)):
+    order = crud.get_order_by_tx_id_with_lock(vopr.tx_id, db)
+    require(order.status == OrderStatus.pending.value, "Wrong order status")
+    require(
+        verify_hash(vopr.tx_id, vopr.tx_hash, order.wallet, order.product_id, vopr.amount),
+        "Could NOT verify transaction"
+    )
+    order.status = OrderStatus.paid.value
+    crud.add_order(order, db)
+    return VerifyOrderPaymentResponse(verified=True)
 
 @router.post(
     "/retrieve",

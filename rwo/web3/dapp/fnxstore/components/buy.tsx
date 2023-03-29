@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useWeb3React} from "@web3-react/core";
 import Image from "next/image";
-import { Product } from "rwo_ts_sdk";
+import {
+    Product,
+    SubmitOrderRequest,
+    SubmitOrderResponse,
+    VerifyOrderPaymentRequest,
+} from "rwo_ts_sdk";
 import { combineLatest } from "rxjs";
 import { UserIcon as UserIconSolid } from "@heroicons/react/24/solid";
 import { UserIcon as UserIconOutline } from "@heroicons/react/24/outline";
 import { FormProvider, useForm, useFormContext, useWatch } from "react-hook-form";
 import { getCryptoStoreContract, getTokenContract, CRYPTO_STORE_CONTRACT } from "@/contract_wrappers/contracts";
-import { ethers, BigNumber, ContractTransaction } from "ethers";
-import { toJSNumber } from "./currency";
+import { ethers, BigNumber, ContractTransaction, ContractReceipt } from "ethers";
+import { toJSNumber, toJSNumberString } from "./currency";
+import { getOrderApi } from "./api/order";
 
 const validateEmail = (email: string) =>
     // eslint-disable-next-line no-useless-escape
@@ -23,6 +29,7 @@ interface IEmailInputs {
 
 export default function Buy({ product }: { product: Product }) {
     const { account, active } = useWeb3React();
+    const [ decimals, setDecimals ] = useState(0);
     const [ productPrice, setProductPrice ] = useState("");
     const [ totalFees, setTotalFees ] = useState("");
     const [ fullPrice, setFullPrice ] = useState<BigNumber>(BigNumber.from(0));
@@ -39,8 +46,38 @@ export default function Buy({ product }: { product: Product }) {
         updateApproval();
     }
 
-    function purchaseProduct() {
-        alert(`Purchasing ${product.name}`);
+    async function purchaseProduct(email: string) {
+        const orderApi = getOrderApi();
+        if (!account) {
+            return;
+        }
+        const sor: SubmitOrderRequest = {
+            email: email,
+            product_id: product.id,
+            quantity: 1,
+            wallet: account,
+        }
+        const resp: SubmitOrderResponse = (await orderApi.submitOrder(sor)).data;
+        const txId: string = resp.tx_id;
+        const cryptoStoreContract = getCryptoStoreContract();
+        const txPayment: ContractTransaction = await cryptoStoreContract.MakePayment(
+            product.id, fullPrice, txId
+        );
+        const txReceipt: ContractReceipt = await txPayment.wait();
+        const txHash = txReceipt.transactionHash;
+        const vopr: VerifyOrderPaymentRequest = {
+            tx_id: txId,
+            tx_hash: txHash,
+            amount: toJSNumber(fullPrice, decimals),
+        }
+        orderApi.verifyOrder(vopr).then(
+            (resp) => {
+                alert(`Order verified: ${resp.data.verified}!`);
+            },
+            (reason) => {
+                alert(`Order rejected: ${reason}`);
+            }
+        )
     }
 
     function ActionButton() {
@@ -49,11 +86,15 @@ export default function Buy({ product }: { product: Product }) {
         const email2 = useWatch({ control, name: "email2", defaultValue: null });
         const email1Valid = validateEmail(email1);
         const email2Valid = validateEmail(email2);
+
+        async function purchase() {
+            await purchaseProduct(email1);
+        }
         return email1Valid && email2Valid && email1 === email2 ? (
             <button
                 className="w-full rounded-sm bg-violet-500
                 py-2 px-4 font-bold text-white hover:bg-violet-600"
-                onClick={shouldApprove ? approve : purchaseProduct}
+                onClick={shouldApprove ? approve : purchase}
             >
                 {shouldApprove ? "Approve" : "Purchase for"} {productPrice} + fees ({totalFees}%) USDC
             </button>
@@ -113,9 +154,9 @@ export default function Buy({ product }: { product: Product }) {
             fullPrice: cryptoStoreContract.GetPriceWithFees(product.id),
         }).subscribe(
             data => {
-                const decimals: number = data.decimals as number;
                 const allowance: BigNumber = data.allowance as BigNumber;
-                setProductPrice(toJSNumber(data.productPrice as BigNumber, decimals));
+                setDecimals(data.decimals as number);
+                setProductPrice(toJSNumberString(data.productPrice as BigNumber, decimals));
                 setTotalFees((data.totalFees as BigNumber).toString());
                 setFullPrice(data.fullPrice as BigNumber);
                 if (allowance < fullPrice) {
