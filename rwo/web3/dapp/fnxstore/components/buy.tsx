@@ -35,6 +35,7 @@ export default function Buy({ product }: { product: Product }) {
     const [ fullPrice, setFullPrice ] = useState<BigNumber>(BigNumber.from(0));
     const [ shouldApprove, setShouldApprove ] = useState(false);
     const formMethods = useForm<IEmailInputs>({ mode: "onSubmit" });
+    const { handleSubmit } = useForm();
 
     async function approve() {
         const tokenContract = getTokenContract();
@@ -193,7 +194,7 @@ export default function Buy({ product }: { product: Product }) {
                 <div className="text-md ">{productPrice} USDC + fees ({totalFees}%)</div>
             </div>
             <FormProvider {...formMethods}>
-                <form>
+                <form onSubmit={handleSubmit((data) => {})}>
                     <div className="mb-2 gap-1 sm:columns-2">
                         <EmailInput id="email1" />
                         <EmailInput id="email2" />
