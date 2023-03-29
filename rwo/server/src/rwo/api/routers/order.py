@@ -24,6 +24,7 @@ from ..dependencies import get_db_session
 from ...common import require
 from ...common.blockchain import (
     generate_tx_id,
+    generate_token,
     verify_hash,
 )
 
@@ -45,6 +46,7 @@ def submit_order(sor: SubmitOrderRequest, db: Session = Depends(get_db_session))
     token = generate_token()
     order = Order(
         **sor.dict(),
+        id=0,
         status=OrderStatus.pending,
         tx_id=tx_id,
         token=token

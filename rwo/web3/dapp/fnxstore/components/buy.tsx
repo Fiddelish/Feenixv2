@@ -57,7 +57,14 @@ export default function Buy({ product }: { product: Product }) {
             quantity: 1,
             wallet: account,
         }
-        const resp: SubmitOrderResponse = (await orderApi.submitOrder(sor)).data;
+        const resp = (await orderApi.submitOrder(sor).catch(
+            (reason) => {
+                alert(`Submit order failed: ${reason}`);
+            }
+        ))?.data;
+        if (!resp) {
+            return;
+        }
         const txId: string = resp.tx_id;
         const cryptoStoreContract = getCryptoStoreContract();
         const txPayment: ContractTransaction = await cryptoStoreContract.MakePayment(
@@ -155,11 +162,12 @@ export default function Buy({ product }: { product: Product }) {
         }).subscribe(
             data => {
                 const allowance: BigNumber = data.allowance as BigNumber;
+                const localFullPrice: BigNumber = data.fullPrice as BigNumber;
                 setDecimals(data.decimals as number);
-                setProductPrice(toJSNumberString(data.productPrice as BigNumber, decimals));
+                setProductPrice(toJSNumberString(data.productPrice as BigNumber, data.decimals as number));
                 setTotalFees((data.totalFees as BigNumber).toString());
-                setFullPrice(data.fullPrice as BigNumber);
-                if (allowance < fullPrice) {
+                setFullPrice(localFullPrice);
+                if (allowance < localFullPrice) {
                     setShouldApprove(true);
                 } else {
                     setShouldApprove(false);
