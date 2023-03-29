@@ -24,7 +24,7 @@ contract TokenManager is Ownable {
         return _token.allowance(msg.sender, address(this));
     }
 
-    function GetTokenDecimals() public view returns(uint256) {
+    function GetTokenDecimals() public view returns(uint8) {
         return _token.decimals();
     }
 }
