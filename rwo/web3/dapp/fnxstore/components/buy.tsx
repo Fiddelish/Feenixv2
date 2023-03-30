@@ -64,6 +64,7 @@ export default function Buy({ product }: { product: Product }) {
             }
         ))?.data;
         if (!resp) {
+            updateApproval();
             return;
         }
         const txId: string = resp.tx_id;
@@ -76,7 +77,7 @@ export default function Buy({ product }: { product: Product }) {
         const vopr: VerifyOrderPaymentRequest = {
             tx_id: txId,
             tx_hash: txHash,
-            amount: toJSNumber(fullPrice, decimals),
+            amount: fullPrice.toNumber(),
         }
         orderApi.verifyOrder(vopr).then(
             (resp) => {
@@ -85,7 +86,7 @@ export default function Buy({ product }: { product: Product }) {
             (reason) => {
                 alert(`Order rejected: ${reason}`);
             }
-        )
+        ).finally(updateApproval)
     }
 
     function ActionButton() {

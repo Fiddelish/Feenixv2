@@ -7,8 +7,7 @@ export function toJSNumberString(bn: ethers.BigNumber, decimals: number): string
 }
 
 export function toJSNumber(bn: ethers.BigNumber, decimals: number): number {
-    return parseInt(
-        ethers.utils.formatUnits(bn, decimals),
-        10
+    return parseFloat(
+        ethers.utils.formatUnits(bn, decimals)
     );
 }

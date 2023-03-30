@@ -15,9 +15,9 @@ LOGGER = rwo_logging.init_logger(
     "blockchain.log", rwo_logging.RWO_DEBUG, "blockchain"
 )
 
-WEB3_HTTP_PROVIDER = os.getenv("WEB3_HTTP_PROVIDER", "http://127.0.0.1:8545")
-CRYPTO_STORE_CONTRACT = os.getenv("CRYPTO_STORE_CONTRACT", "")
-ABI_PATH = Path(os.getenv("ABI_PATH", "."))
+WEB3_HTTP_PROVIDER = os.getenv("WEB3_HTTP_PROVIDER", "http://hardhat:8545")
+CRYPTO_STORE_CONTRACT = os.getenv("CRYPTO_STORE_CONTRACT", "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E")
+ABI_PATH = Path(os.getenv("ABI_PATH", "./abi"))
 
 def get_crypto_store_abi() -> Dict:
     with (ABI_PATH / "contracts/CryptoStore.sol/CryptoStore.json").open("rb") as abi_file:
@@ -52,15 +52,14 @@ def verify_hash(tx_id: str, tx_hash: str, wallet: str, product_id: int, amount: 
         )
         decimals = contract.functions.GetTokenDecimals().call()
         full_price = contract.functions.GetPriceWithFees(product_id).call()
-        bn_amount = to_bn(amount, decimals)
-        require(full_price == bn_amount, "Wrong transaction amount")
+        require(full_price == amount, f"Wrong transaction amount; expected {full_price}")
         decoded = contract.decode_function_input(tx.get("input"))
         require(decoded[0].fn_name == "MakePayment", "Wrong function call")
         require(decoded[1]["productId"] == product_id, "Wrong product ID")
-        require(decoded[1]["amount"] == bn_amount, "Wrong transaction amount")
+        require(decoded[1]["amount"] == amount, f"Wrong transaction amount; expected {decoded[1]['amount']}")
         require(decoded[1]["txId"] == tx_id, "Wrong transaction ID")
         tx_amount = contract.functions.txInAmounts(tx_id).call()
-        require(tx_amount == bn_amount, "Wrong transaction amount")
+        require(tx_amount == amount, f"Wrong transaction amount; expected {tx_amount}")
         tx_address = contract.functions.txInAddresses(tx_id).call()
         require(tx_address == wallet, "Wrong wallet")
     except Exception as e:

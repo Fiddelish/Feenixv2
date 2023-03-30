@@ -26,6 +26,9 @@ services:
       - REDIS_SERVER=redis:6379
       - RWO_API_SERVER=http://localhost:5000
       - EXTRA_CORS_ORIGINS=http://localhost:3000
+      - WEB3_HTTP_PROVIDER=http://hardhat:8545
+      - CRYPTO_STORE_CONTRACT=0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E
+      - ABI_PATH=/workspace/server/abi
     volumes:
       # Mount the root folder that contains .git
       - .:/workspace:cached

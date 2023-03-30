@@ -35,14 +35,9 @@ contract CryptoStore is TokenManager, FeesTaker {
         txInAmounts[txId] = amount;
         txInAddresses[txId] = msg.sender;
         _distributeFees(msg.sender, price);
-        _distributePayment(msg.sender, price);
     }
 
     function _distributeFees(address sender, uint256 price) internal {
         _takeFees(_token, sender, price);
-    }
-
-    function _distributePayment(address sender, uint256 price) internal {
-        _token.transferFrom(sender, address(this), price);
     }
 }

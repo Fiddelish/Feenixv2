@@ -88,7 +88,7 @@ contract FeesTaker is Ownable {
         uint256 dev1Amount = Dev1Fee * price / 100;
         uint256 dev2Amount = Dev2Fee * price / 100;
         uint256 dev3Amount = Dev3Fee * price / 100;
-        uint256 rwoAmount = RWOFee * price / 100;
+        uint256 rwoAmount = price + RWOFee * price / 100;
         uint256 fnxAmount = FNXFee * price / 100;
         token.transferFrom(sender, Dev1Wallet, dev1Amount);
         token.transferFrom(sender, Dev2Wallet, dev2Amount);
