@@ -6,6 +6,7 @@ import uvicorn
 
 from .api.routers import (
     product,
+    order,
 )
 
 RWO_API_SERVER = os.getenv(
@@ -32,6 +33,7 @@ def build_app():
         allow_headers=["*"],
     )
     app.include_router(product.router)
+    app.include_router(order.router)
     openapi_schema = get_openapi(
        title="RWO Product API",
        version="2023.3",

@@ -21,6 +21,7 @@
     "react-hook-form": "^7.43.8",
     "react-modal": "^3.16.1",
     "rwo_ts_sdk": "file:rwo_ts_sdk",
+    "rxjs": "^7.5.7",
     "yarn": "^1.22.19"
   },
   "devDependencies": {
@@ -31,6 +32,7 @@
     "autoprefixer": "^10.4.13",
     "eslint": "8.18.0",
     "eslint-config-next": "12.2.0",
+    "ethers": "^5.6.9",
     "express": "^4.18.2",
     "http-proxy-middleware": "^2.0.6",
     "postcss": "^8.4.21",

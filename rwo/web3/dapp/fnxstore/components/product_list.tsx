@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
 import ProductCard from "./product_card";
-import { productApi } from "./api/product";
+import { getProductApi } from "./api/product";
 import { Product } from "rwo_ts_sdk";
 
 export default function ProductList() {
@@ -10,7 +10,7 @@ export default function ProductList() {
     const { active } = useWeb3React();
     useEffect(() => {
         setLoading(true);
-        const api = productApi();
+        const api = getProductApi();
         api.getProducts().then((value) => {
             setProducts(value.data);
             setLoading(false);

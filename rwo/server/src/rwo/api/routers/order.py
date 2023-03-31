@@ -2,14 +2,31 @@ from typing import List
 from sqlalchemy.orm import Session
 from fastapi import (
     APIRouter,
-    Path,
-    Depends
+    Depends,
+    HTTPException,
 )
 
 from ..decor import rollback_error500
-from ..models import Order
+from ..models import (
+    Order,
+    OrderStatus,
+    SubmitOrderRequest,
+    SubmitOrderResponse,
+    VerifyOrderPaymentRequest,
+    VerifyOrderPaymentResponse,
+    RetrieveOrderRequest,
+    RetrieveOrderResponse,
+    FulfillOrderRequest,
+    FulfillOrderResponse,
+)
 from ...db import crud
 from ..dependencies import get_db_session
+from ...common import require
+from ...common.blockchain import (
+    generate_tx_id,
+    generate_token,
+    verify_hash,
+)
 
 router = APIRouter(
     prefix="/v1/order",
@@ -19,34 +36,69 @@ router = APIRouter(
 )
 
 @router.put(
-    "/",
-    operation_id="add_order",
-    response_model=Order
+    "/submit",
+    operation_id="submit_order",
+    response_model=SubmitOrderResponse
 )
 @rollback_error500()
-def add_order(order: Order, db: Session = Depends(get_db_session)):
-    return crud.add_order(order, db)
+def submit_order(sor: SubmitOrderRequest, db: Session = Depends(get_db_session)):
+    tx_id = generate_tx_id()
+    token = generate_token()
+    order = Order(
+        **sor.dict(),
+        id=0,
+        status=OrderStatus.pending,
+        tx_id=tx_id,
+        token=token
+    )
+    crud.add_order(order, db)
+    return SubmitOrderResponse(tx_id=tx_id)
 
-@router.get(
-    "/status/{order_status}",
-    operation_id="get_orders_by_status",
-    response_model=List[Order]
+@router.put(
+    "/verify",
+    operation_id="verify_order",
+    response_model=VerifyOrderPaymentResponse
 )
 @rollback_error500()
-def get_orders_by_status(
-    order_status: int = Path(..., alias="order_status"),
-    db: Session = Depends(get_db_session)
-):
-    return crud.get_orders_by_status(order_status, db)
+def verify_order(vopr: VerifyOrderPaymentRequest, db: Session = Depends(get_db_session)):
+    order = crud.get_order_by_tx_id_with_lock(vopr.tx_id, db)
+    require(order.status == OrderStatus.pending.value, "Wrong order status")
+    require(
+        verify_hash(vopr.tx_id, vopr.tx_hash, order.wallet, order.product_id, vopr.amount),
+        "Could NOT verify transaction"
+    )
+    order.status = OrderStatus.paid.value
+    crud.add_order(order, db)
+    return VerifyOrderPaymentResponse(verified=True)
 
-@router.get(
-    "/id/{order_id}",
-    operation_id="get_order_by_id",
-    response_model=Order
+@router.post(
+    "/retrieve",
+    operation_id="retrieve_order",
+    response_model=RetrieveOrderResponse
 )
 @rollback_error500()
-def get_order_by_id(
-    order_id: int = Path(..., alias="order_id"),
-    db: Session = Depends(get_db_session)
-):
-    return crud.get_order_by_id(order_id, db)
+def retrieve_order(ror: RetrieveOrderRequest, db: Session = Depends(get_db_session)):
+    order = crud.get_order_by_tx_id(ror.tx_id, db)
+    resp = RetrieveOrderResponse(verified=False, order=None)
+    if (not order or not order.token == ror.token or not order.status == OrderStatus.pending.value):
+        return resp
+    order.token = ""
+    resp.verified = True
+    resp.order = order
+    return resp
+
+@router.post(
+    "/fulfill",
+    operation_id="fulfill_order",
+    response_model=FulfillOrderResponse
+)
+@rollback_error500()
+def fulfill_order(ffor: FulfillOrderRequest, db: Session = Depends(get_db_session)):
+    order = crud.get_order_by_tx_id_with_lock(ffor.tx_id, db)
+    resp = FulfillOrderResponse(fullfilled=False)
+    if (not order or not order.token == ffor.token or not order.status == OrderStatus.pending.value):
+        return resp
+    order.status = OrderStatus.fulfilled.value
+    crud.add_order(order, db)
+    resp.fulfilled = True
+    return resp

@@ -1,4 +1,3 @@
-import ProductList from "@/components/product_list";
 
 export default function About() {
     return (
@@ -6,4 +5,4 @@ export default function About() {
             <h2>Partners</h2>
         </div>
     );
-  }
+}

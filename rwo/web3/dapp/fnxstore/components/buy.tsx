@@ -1,9 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useWeb3React} from "@web3-react/core";
 import Image from "next/image";
-import { Product } from "rwo_ts_sdk";
+import {
+    Product,
+    SubmitOrderRequest,
+    SubmitOrderResponse,
+    VerifyOrderPaymentRequest,
+} from "rwo_ts_sdk";
+import { combineLatest } from "rxjs";
 import { UserIcon as UserIconSolid } from "@heroicons/react/24/solid";
 import { UserIcon as UserIconOutline } from "@heroicons/react/24/outline";
 import { FormProvider, useForm, useFormContext, useWatch } from "react-hook-form";
+import { getCryptoStoreContract, getTokenContract, CRYPTO_STORE_CONTRACT } from "@/contract_wrappers/contracts";
+import { ethers, BigNumber, ContractTransaction, ContractReceipt } from "ethers";
+import { toJSNumber, toJSNumberString } from "./currency";
+import { getOrderApi } from "./api/order";
 
 const validateEmail = (email: string) =>
     // eslint-disable-next-line no-useless-escape
@@ -17,17 +28,65 @@ interface IEmailInputs {
 }
 
 export default function Buy({ product }: { product: Product }) {
-    const [shouldApprove, setShouldApprove] = useState<Boolean>(true);
+    const { account, active } = useWeb3React();
+    const [ decimals, setDecimals ] = useState(0);
+    const [ productPrice, setProductPrice ] = useState("");
+    const [ totalFees, setTotalFees ] = useState("");
+    const [ fullPrice, setFullPrice ] = useState<BigNumber>(BigNumber.from(0));
+    const [ shouldApprove, setShouldApprove ] = useState(false);
     const formMethods = useForm<IEmailInputs>({ mode: "onSubmit" });
+    const { handleSubmit } = useForm();
 
-    function approveTokens() {
-        alert(`Approving ${product.price} tokens`);
-        setShouldApprove(!shouldApprove);
+    async function approve() {
+        const tokenContract = getTokenContract();
+        const txApproval: ContractTransaction = await tokenContract.approve(
+            CRYPTO_STORE_CONTRACT,
+            fullPrice
+        );
+        await txApproval.wait();
+        updateApproval();
     }
 
-    function purchaseProduct() {
-        alert(`Purchasing ${product.name}`);
-        setShouldApprove(true);
+    async function purchaseProduct(email: string) {
+        const orderApi = getOrderApi();
+        if (!account) {
+            return;
+        }
+        const sor: SubmitOrderRequest = {
+            email: email,
+            product_id: product.id,
+            quantity: 1,
+            wallet: account,
+        }
+        const resp = (await orderApi.submitOrder(sor).catch(
+            (reason) => {
+                alert(`Submit order failed: ${reason}`);
+            }
+        ))?.data;
+        if (!resp) {
+            updateApproval();
+            return;
+        }
+        const txId: string = resp.tx_id;
+        const cryptoStoreContract = getCryptoStoreContract();
+        const txPayment: ContractTransaction = await cryptoStoreContract.MakePayment(
+            product.id, fullPrice, txId
+        );
+        const txReceipt: ContractReceipt = await txPayment.wait();
+        const txHash = txReceipt.transactionHash;
+        const vopr: VerifyOrderPaymentRequest = {
+            tx_id: txId,
+            tx_hash: txHash,
+            amount: fullPrice.toNumber(),
+        }
+        orderApi.verifyOrder(vopr).then(
+            (resp) => {
+                alert(`Order verified: ${resp.data.verified}!`);
+            },
+            (reason) => {
+                alert(`Order rejected: ${reason}`);
+            }
+        ).finally(updateApproval)
     }
 
     function ActionButton() {
@@ -36,13 +95,17 @@ export default function Buy({ product }: { product: Product }) {
         const email2 = useWatch({ control, name: "email2", defaultValue: null });
         const email1Valid = validateEmail(email1);
         const email2Valid = validateEmail(email2);
+
+        async function purchase() {
+            await purchaseProduct(email1);
+        }
         return email1Valid && email2Valid && email1 === email2 ? (
             <button
                 className="w-full rounded-sm bg-violet-500
                 py-2 px-4 font-bold text-white hover:bg-violet-600"
-                onClick={!!shouldApprove ? approveTokens : purchaseProduct}
+                onClick={shouldApprove ? approve : purchase}
             >
-                {!!shouldApprove ? "Approve" : "Purchase for"} {product.price} USDC
+                {shouldApprove ? "Approve" : "Purchase for"} {productPrice} + fees ({totalFees}%) USDC
             </button>
         ) : (
             <button
@@ -65,7 +128,6 @@ export default function Buy({ product }: { product: Product }) {
     }
     function EmailInput({ id }: { id: string }) {
         const { register } = useFormContext();
-
         return (
             <div className="flex flex-row rounded-sm border bg-white px-2 py-1">
                 <UserIcon id={id} />
@@ -84,6 +146,38 @@ export default function Buy({ product }: { product: Product }) {
         );
     }
 
+    useEffect(() => {
+        if (!active) {
+            return;
+        }
+        updateApproval();
+    }, []);
+
+    function updateApproval() {
+        const cryptoStoreContract = getCryptoStoreContract();
+        combineLatest({
+            decimals: cryptoStoreContract.GetTokenDecimals(),
+            allowance: cryptoStoreContract.GetAllowance(),
+            productPrice: cryptoStoreContract.productPrices(product.id),
+            totalFees: cryptoStoreContract.TotalFees(),
+            fullPrice: cryptoStoreContract.GetPriceWithFees(product.id),
+        }).subscribe(
+            data => {
+                const allowance: BigNumber = data.allowance as BigNumber;
+                const localFullPrice: BigNumber = data.fullPrice as BigNumber;
+                setDecimals(data.decimals as number);
+                setProductPrice(toJSNumberString(data.productPrice as BigNumber, data.decimals as number));
+                setTotalFees((data.totalFees as BigNumber).toString());
+                setFullPrice(localFullPrice);
+                if (allowance < localFullPrice) {
+                    setShouldApprove(true);
+                } else {
+                    setShouldApprove(false);
+                }
+            }
+        );
+    }
+
     return (
         <div className="flex flex-col items-center">
             <Image
@@ -98,9 +192,10 @@ export default function Buy({ product }: { product: Product }) {
             <div className="my-2 px-8 py-2">
                 <div className="text-xl font-bold">{product.name}</div>
                 <div className="text-md ">{product.description}</div>
+                <div className="text-md ">{productPrice} USDC + fees ({totalFees}%)</div>
             </div>
             <FormProvider {...formMethods}>
-                <form>
+                <form onSubmit={handleSubmit((data) => {})}>
                     <div className="mb-2 gap-1 sm:columns-2">
                         <EmailInput id="email1" />
                         <EmailInput id="email2" />
