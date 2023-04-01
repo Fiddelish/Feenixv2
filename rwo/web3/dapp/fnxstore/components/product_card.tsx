@@ -1,13 +1,37 @@
-import React, { useState } from "react";
-import { useWeb3React} from "@web3-react/core";
+import React, { useState, useEffect } from "react";
+import { combineLatest } from "rxjs";
+import { BigNumber } from "ethers";
+import { useWeb3React } from "@web3-react/core";
+import { Product } from "rwo_ts_sdk";
+import { getCryptoStoreContract } from "@/contract_wrappers/contracts";
 import Image from "next/image";
 import Modal from "react-modal";
-import { Product } from "rwo_ts_sdk";
 import Buy from "./buy";
+import { toJSNumberString } from "./currency";
 
 export default function ProductCard({ product }: { product: Product }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [price, setPrice] = useState("");
+    const [totalFees, setTotalFees] = useState("");
     const { active } = useWeb3React();
+
+    useEffect(() => {
+        retrievePriceAndFees();
+    }, []);
+
+    function retrievePriceAndFees() {
+        const cryptoStoreContract = getCryptoStoreContract();
+        combineLatest({
+            decimals: cryptoStoreContract.GetTokenDecimals(),
+            productPrice: cryptoStoreContract.productPrices(product.id),
+            totalFees: cryptoStoreContract.TotalFees(),
+        }).subscribe(
+            data => {
+                setPrice(toJSNumberString(data.productPrice as BigNumber, data.decimals as number));
+                setTotalFees((data.totalFees as BigNumber).toString());
+            }
+        );
+    }
 
     function openModal() {
         setIsOpen(true);
@@ -51,7 +75,7 @@ export default function ProductCard({ product }: { product: Product }) {
                         onClick={openModal}
                         disabled={!active}
                     >
-                        {product.price} USDC
+                        {price} + ({totalFees}% fees) USDC
                     </button>
                 </div>
             </div>
