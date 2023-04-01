@@ -9,6 +9,7 @@ from sqlalchemy import (
 
 from .database import Base
 
+
 class AlembicVersion(Base):
     __tablename__ = "alembic_version"
     version_num = Column(String(32), primary_key=True)
@@ -19,8 +20,8 @@ class Product(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255), unique=True, nullable=False)
     description = Column(String(1024), unique=True, nullable=True)
-    price = Column(BigInteger, nullable=False)
     quantity = Column(Integer, nullable=False)
+
 
 class Order(Base):
     __tablename__ = "order"
