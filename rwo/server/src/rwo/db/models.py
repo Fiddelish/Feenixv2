@@ -62,7 +62,7 @@ class OrderNotification(Base):
     status = Column(String(32), nullable=False)
     subscriber = Column(String(16), nullable=False)
     channel = Column(String(16), nullable=False)
-    is_successful = Column(Boolean, nullable=True)
+    successful = Column(Boolean, nullable=True)
     report = Column(Text)
     created_at = Column(
         DateTime(timezone=True), nullable=False, default=datetime.utcnow()

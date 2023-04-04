@@ -60,7 +60,7 @@ class OrderNotification(BaseModel):
     order_token: Optional[str] = Field(None, nullable=True)
     subscriber: NotificationSubscriber
     channel: NotificationChannel
-    is_successful: Optional[bool] = Field(None, nullable=True)
+    successful: Optional[bool] = Field(None, nullable=True)
     report: Optional[str] = Field(None, nullable=True)
     created_at: datetime
     updated_at: datetime
@@ -120,5 +120,5 @@ class FulfillOrderResponse(BaseModel):
 
 
 class UpdateNDSRequest(BaseModel):
-    successful: bool
+    successful: Optional[bool] = Field(None, nullable=True)
     report: str
