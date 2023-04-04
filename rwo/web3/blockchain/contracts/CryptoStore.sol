@@ -9,7 +9,7 @@ contract CryptoStore is TokenManager, FeesTaker {
     using Counters for Counters.Counter;
 
     uint256 private _balance;
-    Counters.counter private _productIdCounter;
+    Counters.Counter private _productIdCounter;
 
     mapping(uint256 => uint256) public productPrices;
     mapping(string => uint256) public txInAmounts;
