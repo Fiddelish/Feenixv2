@@ -122,7 +122,7 @@ def get_order_notifications(
         .join(dbmodels.Product)
         .filter(
             dbmodels.OrderNotification.id > (0 if cursor is None else cursor),
-            dbmodels.OrderNotification.is_successful.is_(None),
+            dbmodels.OrderNotification.successful.is_(None),
             dbmodels.OrderNotification.channel == channel,
             dbmodels.OrderNotification.subscriber == subscriber,
         )
@@ -134,11 +134,11 @@ def get_order_notifications(
 
 def update_order_notification(
     id: int,
-    is_successful: bool,
+    successful: bool,
     report: str,
     db: Session,
 ):
     row = db.query(dbmodels.OrderNotification).filter_by(id=id).one()
-    row.is_successful = is_successful
+    row.successful = successful
     row.report = report
     db.commit()
