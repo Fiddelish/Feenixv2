@@ -32,13 +32,21 @@ def get_products(db: Session):
 
 
 def add_product(product: apimodels.Product, db: Session) -> dbmodels.Product:
-    if product.id > 0:
-        db_product = get_product_by_id(product.id, db)
-    else:
-        db_product = dbmodels.Product()
+    db_product = dbmodels.Product()
+    db_product.id = product.id
     db_product.name = product.name
     db_product.description = product.description
-    db_product.price = product.price
+    db_product.quantity = product.quantity
+    db.add(db_product)
+    db.commit()
+    db.refresh(db_product)
+    return db_product
+
+
+def update_product(product: apimodels.Product, db: Session) -> dbmodels.Product:
+    db_product = get_product_by_id(product.id, db)
+    db_product.name = product.name
+    db_product.description = product.description
     db_product.quantity = product.quantity
     db.add(db_product)
     db.commit()

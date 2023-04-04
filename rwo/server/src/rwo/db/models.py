@@ -27,7 +27,6 @@ class Product(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255), unique=True, nullable=False)
     description = Column(String(1024), unique=True, nullable=True)
-    price = Column(BigInteger, nullable=False)
     quantity = Column(Integer, nullable=False)
 
 

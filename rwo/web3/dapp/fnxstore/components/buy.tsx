@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useWeb3React} from "@web3-react/core";
+import { useWeb3React } from "@web3-react/core";
 import Image from "next/image";
 import {
     Product,
@@ -11,9 +11,13 @@ import { combineLatest } from "rxjs";
 import { UserIcon as UserIconSolid } from "@heroicons/react/24/solid";
 import { UserIcon as UserIconOutline } from "@heroicons/react/24/outline";
 import { FormProvider, useForm, useFormContext, useWatch } from "react-hook-form";
-import { getCryptoStoreContract, getTokenContract, CRYPTO_STORE_CONTRACT } from "@/contract_wrappers/contracts";
-import { ethers, BigNumber, ContractTransaction, ContractReceipt } from "ethers";
-import { toJSNumber, toJSNumberString } from "./currency";
+import {
+    getCryptoStoreContract,
+    getTokenContract,
+    CRYPTO_STORE_CONTRACT
+} from "@/contract_wrappers/contracts";
+import { BigNumber, ContractTransaction, ContractReceipt } from "ethers";
+import { toJSNumberString } from "./currency";
 import { getOrderApi } from "./api/order";
 
 const validateEmail = (email: string) =>
@@ -29,11 +33,11 @@ interface IEmailInputs {
 
 export default function Buy({ product }: { product: Product }) {
     const { account, active } = useWeb3React();
-    const [ decimals, setDecimals ] = useState(0);
-    const [ productPrice, setProductPrice ] = useState("");
-    const [ totalFees, setTotalFees ] = useState("");
-    const [ fullPrice, setFullPrice ] = useState<BigNumber>(BigNumber.from(0));
-    const [ shouldApprove, setShouldApprove ] = useState(false);
+    const [decimals, setDecimals] = useState(0);
+    const [productPrice, setProductPrice] = useState("");
+    const [totalFees, setTotalFees] = useState("");
+    const [fullPrice, setFullPrice] = useState<BigNumber>(BigNumber.from(0));
+    const [shouldApprove, setShouldApprove] = useState(false);
     const formMethods = useForm<IEmailInputs>({ mode: "onSubmit" });
     const { handleSubmit } = useForm();
 
@@ -195,7 +199,7 @@ export default function Buy({ product }: { product: Product }) {
                 <div className="text-md ">{productPrice} USDC + fees ({totalFees}%)</div>
             </div>
             <FormProvider {...formMethods}>
-                <form onSubmit={handleSubmit((data) => {})}>
+                <form onSubmit={handleSubmit((data) => { })}>
                     <div className="mb-2 gap-1 sm:columns-2">
                         <EmailInput id="email1" />
                         <EmailInput id="email2" />
