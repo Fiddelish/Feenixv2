@@ -2,6 +2,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 from enum import Enum
 
+
 class OrderStatus(str, Enum):
     pending = "pending"
     paid = "paid"
@@ -14,11 +15,11 @@ class Product(BaseModel):
     id: int
     name: str
     description: Optional[str] = Field(None, nullable=True)
-    price: int
     quantity: int
 
     class Config:
         orm_mode = True
+
 
 class Order(BaseModel):
     id: int
@@ -34,34 +35,42 @@ class Order(BaseModel):
     class Config:
         orm_mode = True
 
+
 class SubmitOrderRequest(BaseModel):
     product_id: int
     email: str
     wallet: str
     quantity: int
 
+
 class SubmitOrderResponse(BaseModel):
     tx_id: str
+
 
 class VerifyOrderPaymentRequest(BaseModel):
     tx_id: str
     tx_hash: str
     amount: int
 
+
 class VerifyOrderPaymentResponse(BaseModel):
     verified: bool
+
 
 class RetrieveOrderRequest(BaseModel):
     tx_id: str
     token: str
 
+
 class RetrieveOrderResponse(BaseModel):
     verified: bool
     order: Optional[Order] = Field(None, nullable=True)
 
+
 class FulfillOrderRequest(BaseModel):
     tx_id: str
     token: str
+
 
 class FulfillOrderResponse(BaseModel):
     fulfilled: bool
