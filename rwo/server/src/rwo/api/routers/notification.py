@@ -48,7 +48,7 @@ async def get_notifications_pending(
                 id=n.id,
                 product_name=p.name,
                 product_description=p.description,
-                product_price=p.price,
+                product_price=9999,  # TODO change
                 product_quantity=o.quantity,
                 order_status=n.status,
                 order_email=o.email,
