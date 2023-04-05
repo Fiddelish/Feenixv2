@@ -12,7 +12,7 @@ contract TokenManager is Ownable {
     }
 
     function SetTokenAddress(address tokenAddress) external OnlyOwner {
-        require(address(_token) == 0, "Token address already set");
+        require(address(_token) == address(0), "Token address already set");
         _token = IERC20Metadata(tokenAddress);
     }
 
@@ -28,7 +28,7 @@ contract TokenManager is Ownable {
         return _token.decimals();
     }
 
-    function GetTokenName() public view returns (uint8) {
+    function GetTokenName() public view returns (string) {
         return _token.name();
     }
 }
