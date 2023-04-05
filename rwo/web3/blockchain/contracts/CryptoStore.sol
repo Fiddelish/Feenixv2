@@ -28,12 +28,6 @@ contract CryptoStore is TokenManager, FeesTaker {
         return productId;
     }
 
-    function UpdateProduct(uint256 productId, uint256 price) public OnlyOwner {
-        require(price > 0, "Price should be greater than 0");
-        require(productPrices[productId] > 0, "Product ID not found");
-        productPrices[productId] = price;
-    }
-
     function GetPriceWithFees(uint256 productId) public view returns (uint256) {
         require(productPrices[productId] > 0, "Invalid product ID");
         return (productPrices[productId] * (100 + TotalFees)) / 100;
