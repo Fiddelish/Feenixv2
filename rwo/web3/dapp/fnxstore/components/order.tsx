@@ -22,8 +22,8 @@ export default function ProductList(
         }
 ) {
     const [isVerified, setVerified] = useState(false);
-    const [order, setOrder] = useState<Order>(undefined);
-    const [product, setProduct] = useState<Product>(undefined);
+    const [order, setOrder] = useState<Order>();
+    const [product, setProduct] = useState<Product>();
     const [totalAmount, setTotalAmount] = useState("");
     const [tokenName, setTokenName] = useState("");
 
@@ -40,7 +40,7 @@ export default function ProductList(
         retrieveOrder().then(
             (resp) => {
                 const rResp: RetrieveOrderResponse = resp.data;
-                if (!rResp.verified) {
+                if (!rResp.verified || !rResp.order) {
                     return;
                 }
                 setOrder(rResp.order);
@@ -50,7 +50,7 @@ export default function ProductList(
                     tokenName: cryptoStoreContract.GetTokenName(),
                     decimals: cryptoStoreContract.GetTokenDecimals(),
                     totalAmount: cryptoStoreContract.txInAmounts(txId),
-                    product: pApi.getProductById(resp.order.product_id)
+                    product: pApi.getProductById(rResp.order.product_id)
                 }).subscribe(
                     (resp) => {
                         setTotalAmount(toJSNumberString(resp.totalAmount as BigNumber, resp.decimals as number));
@@ -69,6 +69,9 @@ export default function ProductList(
     }, []);
 
     async function markAsFulfilled() {
+        if (!order) {
+            return;
+        }
         if (!confirm(`Are you sure you want to mark order ${order.id} as fulfilled?`)) {
             return;
         }
@@ -77,7 +80,7 @@ export default function ProductList(
             token: token
         };
         const oApi = getOrderApi();
-        const resp: FulfillOrderResponse = await oApi.fulfillOrder(fr);
+        const resp: FulfillOrderResponse = (await oApi.fulfillOrder(fr)).data;
         if (!resp.fulfilled) {
             alert(`Error marking order ${order.id} as fulfilled`);
         } else {
@@ -87,7 +90,7 @@ export default function ProductList(
     }
     return (
         <>
-            {isVerified && (
+            {isVerified && (order !== undefined) && (product !== undefined) && (
                 <div
                     className="m-6 flex h-80 w-64
                         flex-col gap-y-5 overflow-hidden
@@ -95,8 +98,6 @@ export default function ProductList(
                         shadow-black"
                 >
                     <div className="grid grid-cols-2">
-                        <div>Order Date:</div>
-                        <div>{order.timestamp}</div>
                         <div>Order ID:</div>
                         <div>{order.id}</div>
                         <div>Product ID:</div>
@@ -119,7 +120,7 @@ export default function ProductList(
                                 py-2
                                 px-4 font-bold text-white shadow-md shadow-violet-900 hover:bg-violet-600 focus:ring-0 focus:ring-offset-0 disabled:bg-gray-400 disabled:shadow-gray-900 disabled:shadow-sm active:shadow-sm active:shadow-violet-900"
                             onClick={markAsFulfilled}
-                            disabled={order.status === OrderStatus.paid}
+                            disabled={order.status !== OrderStatus.Paid}
                         >
                             Mark as Fullfilled
                         </button>
@@ -129,3 +130,4 @@ export default function ProductList(
         </>
     );
 }
+
