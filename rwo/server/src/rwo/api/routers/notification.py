@@ -31,7 +31,7 @@ async def get_notifications_pending(
     subscriber: str,
     channel: str = Query(default="email"),
     chunk_size: int = Query(50, gt=0, le=1000, description="Chunk size"),
-    cursor: int = Query(None, gt=0, description="Cursor to start from"),
+    cursor: int = Query(default=None, gt=0, description="Cursor to start from"),
     db: Session = Depends(get_db_session),
 ) -> Any:
     rows = crud.get_order_notifications(
