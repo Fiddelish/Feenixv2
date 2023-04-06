@@ -41,20 +41,22 @@ export default function ProductList(
             (resp) => {
                 const rResp: RetrieveOrderResponse = resp.data;
                 if (!rResp.verified || !rResp.order) {
+                    setVerified(false);
+                    setOrder(undefined);
                     return;
                 }
                 setOrder(rResp.order);
                 const cryptoStoreContract = getCryptoStoreContract();
                 const pApi = getProductApi();
                 combineLatest({
-                    tokenName: cryptoStoreContract.GetTokenName(),
+                    tokenSymbol: cryptoStoreContract.GetTokenSymbol(),
                     decimals: cryptoStoreContract.GetTokenDecimals(),
                     totalAmount: cryptoStoreContract.txInAmounts(txId),
                     product: pApi.getProductById(rResp.order.product_id)
                 }).subscribe(
                     (resp) => {
-                        setTotalAmount(toJSNumberString(resp.totalAmount as BigNumber, resp.decimals as number));
-                        setTokenName(resp.tokenName as string);
+                        setTotalAmount(toJSNumberString(resp.totalAmount as BigNumber, resp.decimals as number, 4));
+                        setTokenName(resp.tokenSymbol as string);
                         const product: Product = resp.product.data;
                         setProduct(product);
                         setVerified(true);
@@ -92,30 +94,32 @@ export default function ProductList(
         <>
             {isVerified && (order !== undefined) && (product !== undefined) && (
                 <div
-                    className="m-6 flex h-80 w-64
+                    className="flex h-80 w-3/4
                         flex-col gap-y-5 overflow-hidden
                         rounded-md bg-stone-100 shadow-2xl
                         shadow-black"
                 >
-                    <div className="grid grid-cols-2">
-                        <div>Order ID:</div>
-                        <div>{order.id}</div>
-                        <div>Product ID:</div>
-                        <div>{order.product_id}</div>
-                        <div>Product Name:</div>
-                        <div>{product.name}</div>
-                        <div>Transaction ID:</div>
-                        <div>{order.tx_id}</div>
-                        <div>Transaction Hash:</div>
-                        <div>{order.tx_hash}</div>
-                        <div>Total amount paid (with taxes):</div>
-                        <div>{totalAmount} {tokenName}</div>
-                        <div>Order Status:</div>
-                        <div>{order.status}</div>
+                    <div className="flex justify-center">
+                        <div className="grid grid-cols-2 p-2 w-1/2">
+                            <div>Order ID:</div>
+                            <div>{order.id}</div>
+                            <div>Product ID:</div>
+                            <div>{order.product_id}</div>
+                            <div>Product Name:</div>
+                            <div>{product.name}</div>
+                            <div>Transaction ID:</div>
+                            <div>{order.tx_id}</div>
+                            <div>Transaction Hash:</div>
+                            <div>{order.tx_hash}</div>
+                            <div>Total amount paid (with taxes):</div>
+                            <div>{totalAmount} {tokenName}</div>
+                            <div>Order Status:</div>
+                            <div>{order.status}</div>
+                        </div>
                     </div>
-                    <div>
+                    <div className="flex justify-center">
                         <button
-                            className="w-32 rounded-md
+                            className="w-48 rounded-md
                                 bg-violet-500
                                 py-2
                                 px-4 font-bold text-white shadow-md shadow-violet-900 hover:bg-violet-600 focus:ring-0 focus:ring-offset-0 disabled:bg-gray-400 disabled:shadow-gray-900 disabled:shadow-sm active:shadow-sm active:shadow-violet-900"

@@ -31,4 +31,8 @@ contract TokenManager is Ownable {
     function GetTokenName() public view returns (string memory) {
         return _token.name();
     }
+
+    function GetTokenSymbol() public view returns (string memory) {
+        return _token.symbol();
+    }
 }
