@@ -63,6 +63,7 @@ def verify_order(
         ),
         "Could NOT verify transaction",
     )
+    order.tx_hash = vopr.tx_hash
     order.status = OrderStatus.paid.value
     crud.add_order(order, db)
     return VerifyOrderPaymentResponse(verified=True)
@@ -78,7 +79,7 @@ def retrieve_order(ror: RetrieveOrderRequest, db: Session = Depends(get_db_sessi
     if (
         not order
         or not order.token == ror.token
-        or not order.status == OrderStatus.pending.value
+        or not order.status in ( OrderStatus.paid.value, OrderStatus.fulfilled.value )
     ):
         return resp
     order.token = ""
@@ -93,11 +94,11 @@ def retrieve_order(ror: RetrieveOrderRequest, db: Session = Depends(get_db_sessi
 @rollback_error500()
 def fulfill_order(ffor: FulfillOrderRequest, db: Session = Depends(get_db_session)):
     order = crud.get_order_by_tx_id_with_lock(ffor.tx_id, db)
-    resp = FulfillOrderResponse(fullfilled=False)
+    resp = FulfillOrderResponse(fulfilled=False)
     if (
         not order
         or not order.token == ffor.token
-        or not order.status == OrderStatus.pending.value
+        or not order.status == OrderStatus.paid.value
     ):
         return resp
     order.status = OrderStatus.fulfilled.value
