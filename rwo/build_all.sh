@@ -50,7 +50,7 @@ echo ""
 
 echo "----- Building RWO Portal -----"
 cd web3
-docker build - --no-cache -t rwo_web3_build:dev < Dockerfile.build
+docker build - -t rwo_web3_build:dev < Dockerfile.build
 cd dapp/fnxstore
 cp -R ../../blockchain/out/abi ./
 rm -rf rwo_ts_sdk
