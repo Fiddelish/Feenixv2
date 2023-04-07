@@ -16,8 +16,10 @@ export default function ProductCard({ product }: { product: Product }) {
     const { active } = useWeb3React();
 
     useEffect(() => {
-        retrievePriceAndFees();
-    }, []);
+        if (active) {
+            retrievePriceAndFees();
+        }
+    }, [active]);
 
     function retrievePriceAndFees() {
         const cryptoStoreContract = getCryptoStoreContract();
@@ -66,18 +68,20 @@ export default function ProductCard({ product }: { product: Product }) {
                     <div className="text-xl font-bold">{product.name}</div>
                     <div className="text-md mb-2 text-stone-600">{product.description}</div>
                 </div>
-                <div className="flex w-full justify-center">
-                    <button
-                        className="w-32 rounded-md
-                        bg-violet-500
-                        py-2
-                        px-4 font-bold text-white shadow-md shadow-violet-900 hover:bg-violet-600 focus:ring-0 focus:ring-offset-0 disabled:bg-gray-400 disabled:shadow-gray-900 disabled:shadow-sm active:shadow-sm active:shadow-violet-900"
-                        onClick={openModal}
-                        disabled={!active}
-                    >
-                        {price} + ({totalFees}% fees) USDC
-                    </button>
-                </div>
+                {active && (
+                    <div className="flex w-full justify-center">
+                        <button
+                            className="w-32 rounded-md
+                            bg-violet-500
+                            py-2
+                            px-4 font-bold text-white shadow-md shadow-violet-900 hover:bg-violet-600 focus:ring-0 focus:ring-offset-0 disabled:bg-gray-400 disabled:shadow-gray-900 disabled:shadow-sm active:shadow-sm active:shadow-violet-900"
+                            onClick={openModal}
+                            disabled={!active}
+                        >
+                            {price} USDC
+                        </button>
+                    </div>
+                )}
             </div>
             <Modal
                 isOpen={isOpen}

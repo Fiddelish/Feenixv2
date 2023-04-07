@@ -6,9 +6,16 @@ export default function OrderPage() {
     const router = useRouter()
     const { tx_id, token } = router.query;
 
+    if (!tx_id || !token) {
+        return (
+            <>
+                <p>Invalid order details</p>
+            </>
+        );
+    }
     return (
         <div className="flex h-full flex-col justify-center items-center">
-            <Order txId={tx_id} token={token} />
+            <Order txId={tx_id.toString()} token={token.toString()} />
         </div>
     );
 }

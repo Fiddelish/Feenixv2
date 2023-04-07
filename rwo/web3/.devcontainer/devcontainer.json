@@ -15,6 +15,5 @@
             ]
         }
     },
-    "workspaceFolder": "/workspace/web3",
-    "postCreateCommand": "apk add --no-cache libc6-compat git"
+    "workspaceFolder": "/workspace/web3"
 }
