@@ -106,6 +106,14 @@ export default function ProductList(
                                     <td className="border border-slate-400">{order.id}</td>
                                 </tr>
                                 <tr>
+                                    <td className="border border-slate-400">Order Created:</td>
+                                    <td className="border border-slate-400">{order.created_at}</td>
+                                </tr>
+                                <tr>
+                                    <td className="border border-slate-400">Order Updated:</td>
+                                    <td className="border border-slate-400">{order.updated_at}</td>
+                                </tr>
+                                <tr>
                                     <td className="border border-slate-400">Product ID:</td>
                                     <td className="border border-slate-400">{order.product_id}</td>
                                 </tr>
