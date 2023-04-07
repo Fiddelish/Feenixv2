@@ -6,7 +6,7 @@ import json
 import os
 import sys
 import aioredis
-import logging
+from rwo.common import logging as rwo_logging
 from datetime import datetime
 
 from rwo_py_sdk import ApiClient as RWOApiClient
@@ -23,18 +23,7 @@ EMAIL_RETRY_TIME = 60 * 5
 CHUNK_SIZE = 50
 
 api = NotificationApi(RWOApiClient(configuration=RWOConfiguration(host=API_SERVER)))
-
-
-class TaskLogFormatter(logging.Formatter):
-    def __init__(self):
-        super().__init__(datefmt="%Y-%m-%d %H:%M:%S")
-
-    def format(self, record):
-        try:
-            task_name = asyncio.current_task().get_name()
-        except:
-            task_name = "[main]"
-        return f"[{self.formatTime(record, self.datefmt)}] [{task_name}] [{record.levelname}] {record.getMessage()}"
+logger = rwo_logging.init_logger("notifier.log", rwo_logging.DEBUG, "notifier")
 
 
 def dt2iso(o):
@@ -50,7 +39,7 @@ def mask_email(e):
 async def email_notify_thread(subscriber: str):
     async def process_pending_items(subscriber: str):
         global api
-        logger = logging.getLogger()
+        global logger
 
         cursor = None
         logger.debug(
@@ -126,7 +115,7 @@ async def email_notify_thread(subscriber: str):
 
         return
 
-    logger = logging.getLogger()
+    global logger
 
     queue = f"rwo:notify:email:{subscriber}"
     logger.debug(f"subscriber {subscriber}")
@@ -163,12 +152,7 @@ async def email_notify_thread(subscriber: str):
 
 
 async def main():
-    handler = logging.StreamHandler(sys.stderr)
-    handler.setFormatter(TaskLogFormatter())
-    logger = logging.getLogger()
-    logger.handlers.clear()
-    logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
+    global logger
 
     tasks = [
         asyncio.create_task(email_notify_thread("admin")),
@@ -182,4 +166,5 @@ async def main():
             _.cancel()
 
 
-asyncio.run(main())
+def run():
+    asyncio.run(main())
