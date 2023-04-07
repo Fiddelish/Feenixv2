@@ -24,6 +24,7 @@ CHUNK_SIZE = 50
 
 api = NotificationApi(RWOApiClient(configuration=RWOConfiguration(host=API_SERVER)))
 logger = rwo_logging.init_logger("notifier.log", rwo_logging.DEBUG, "notifier")
+redis_pool = None
 
 
 def dt2iso(o):
@@ -79,15 +80,15 @@ async def email_notify_thread(subscriber: str):
             for _ in notifications:
                 successful: bool = None
 
-                message = MIMEText(json.dumps(_.to_dict(), indent=2, default=dt2iso))
+                message = MIMEText(json.dumps(_.data, indent=2, default=dt2iso))
                 message["From"] = "notify-DAEMON <>"
-                message["To"] = _.order_email
+                message["To"] = _.recipient
                 message["Subject"] = f"RWO {subscriber.capitalize()} notification"
 
                 try:
-                    logger.debug(f"sendmail rcpt to {mask_email(_.order_email)}")
+                    logger.debug(f"sendmail rcpt to {mask_email(_.recipient)}")
                     id, response = await smtp_client.sendmail(
-                        "", _.order_email, message.as_bytes()
+                        "", _.recipient, message.as_bytes()
                     )
                     logger.debug(f"successful sendmail id={id}, response={response}")
                     successful = True
@@ -109,8 +110,11 @@ async def email_notify_thread(subscriber: str):
                         f"notification id={_.id} delivery status success={successful}, report: {response}"
                     )
                     cursor = _.id
-                    api.update_delivery_status(
-                        _.id, UpdateNDSRequest(response, successful=successful)
+                    api.delivery_status(
+                        _.id,
+                        UpdateNDSRequest(
+                            delivery_report=response, successful=successful
+                        ),
                     )
             logger.debug(f"closing SMTP")
             await smtp_client.quit()
@@ -123,8 +127,8 @@ async def email_notify_thread(subscriber: str):
     global logger
     global redis_pool
 
-    if REDIS_URL is None:
-        logger.info(f"one-shot mode")
+    if redis_pool is None:
+        logger.info(f"no redis, one-shot mode")
         try:
             await process_pending_items(subscriber)
         except Exception as e:
