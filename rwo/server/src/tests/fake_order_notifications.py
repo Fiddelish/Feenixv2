@@ -42,7 +42,7 @@ def fake_order_notifications(db: Session):
     faker = Faker("sv_SE")
     for _ in range(5):
         o = dbmodels.Order(
-            product_id=1,
+            product_id=random.choice([1, 2]),
             email=faker.email(),
             wallet="".join(
                 random.choice(string.ascii_letters + string.digits) for i in range(32)
@@ -60,122 +60,63 @@ def fake_order_notifications(db: Session):
                 ]
             ),
         )
+        odict = {
+            key: value
+            for key, value in o.__dict__.items()
+            if not key.startswith("_sa_")
+        }
+        db.add(o)
+
         if o.status in [
             apimodels.OrderStatus.pending,
             apimodels.OrderStatus.paid,
             apimodels.OrderStatus.fulfilled,
         ]:
-            o.notifications.append(
-                dbmodels.OrderNotification(
-                    status=apimodels.OrderStatus.pending,
+            db.add(
+                dbmodels.Notification(
                     subscriber="user",
                     channel="email",
+                    recipient=o.email,
+                    data=json.dumps({**odict, "status": apimodels.OrderStatus.pending}),
                     created_at=datetime.utcnow(),
                 )
             )
         if o.status in [apimodels.OrderStatus.paid, apimodels.OrderStatus.fulfilled]:
-            o.notifications.append(
-                dbmodels.OrderNotification(
-                    status=apimodels.OrderStatus.paid,
+            db.add(
+                dbmodels.Notification(
                     subscriber="user",
                     channel="email",
+                    recipient=o.email,
+                    data=json.dumps({**odict, "status": apimodels.OrderStatus.paid}),
+                    created_at=datetime.utcnow(),
                 )
             )
-            o.notifications.append(
-                dbmodels.OrderNotification(
-                    status=apimodels.OrderStatus.paid,
+            db.add(
+                dbmodels.Notification(
                     subscriber="admin",
                     channel="email",
+                    recipient=o.email,
+                    data=json.dumps({**odict, "status": apimodels.OrderStatus.paid}),
+                    created_at=datetime.utcnow(),
                 )
             )
         if o.status in [apimodels.OrderStatus.fulfilled]:
-            o.notifications.append(
-                dbmodels.OrderNotification(
-                    status=apimodels.OrderStatus.fulfilled,
+            db.add(
+                dbmodels.Notification(
                     subscriber="user",
                     channel="email",
+                    recipient=o.email,
+                    data=json.dumps(
+                        {**odict, "status": apimodels.OrderStatus.fulfilled}
+                    ),
+                    created_at=datetime.utcnow(),
                 )
             )
-        db.add(o)
     db.commit()
-
-
-def get_fake_data1(db: Session):
-    return (
-        db.query(dbmodels.OrderNotification)
-        .join(dbmodels.Order)
-        .filter(dbmodels.OrderNotification.successful.is_(None))
-        .order_by(dbmodels.OrderNotification.created_at.asc())
-        .all()
-    )
-
-
-def query_data2(db: Session):
-    n = aliased(dbmodels.OrderNotification)
-    o = aliased(dbmodels.Order)
-    p = aliased(dbmodels.Product)
-    return (
-        db.query(
-            n.id,
-            n.status,
-            n.subscriber,
-            n.created_at,
-            o.email,
-            o.quantity,
-            o.tx_id,
-            o.token,
-            p.name.label("product_name"),
-            p.description.label("product_description"),
-            p.price.label("product_price"),
-        )
-        .select_from(n)
-        .join(o)
-        .join(p)
-        .filter(n.successful.is_(None))
-        .order_by(n.id.asc())
-    )
-
-
-def query_data3(db: Session, channel: str, subscriber: str, cursor: int):
-    q = (
-        db.query(dbmodels.OrderNotification, dbmodels.Order, dbmodels.Product)
-        .select_from(dbmodels.OrderNotification)
-        .join(dbmodels.Order)
-        .join(dbmodels.Product)
-        .filter(
-            dbmodels.OrderNotification.successful.is_(None),
-            dbmodels.OrderNotification.id > cursor,
-            dbmodels.OrderNotification.channel == channel,
-            dbmodels.OrderNotification.subscriber == subscriber,
-        )
-        .order_by(dbmodels.OrderNotification.id.asc())
-    )
-    r = []
-    for n, o, p in q:
-        r.append(
-            apimodels.OrderNotification(
-                id=n.id,
-                product_name=p.name,
-                product_description=p.description,
-                product_quantity=o.quantity,
-                order_status=n.status,
-                order_email=o.email,
-                order_tx_id=o.tx_id,
-                order_token=o.token,
-                subscriber=n.subscriber,
-                channel=n.channel,
-                created_at=n.created_at,
-                updated_at=n.updated_at,
-            )
-        )
-    return r
 
 
 try:
     db = DBSession()
     fake_order_notifications(db)
-    # r = query_data3(db, "email", "user", 5)
-    # for _ in r:
-    #     print(_.id, _.order_email)
 finally:
     db.close()
