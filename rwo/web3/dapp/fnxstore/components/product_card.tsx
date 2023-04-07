@@ -82,6 +82,15 @@ export default function ProductCard({ product }: { product: Product }) {
                         </button>
                     </div>
                 )}
+                {!active && (
+                    <div className="flex w-full justify-center">
+                        <p
+                            className="w-40 py-2 px-4 font-bold"
+                        >
+                            Connect wallet to see prices
+                        </p>
+                    </div>
+                )}
             </div>
             <Modal
                 isOpen={isOpen}
