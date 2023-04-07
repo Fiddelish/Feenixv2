@@ -1,19 +1,16 @@
 import os
 import logging
 import concurrent_log_handler
+import asyncio
 from pathlib import Path
 
-RWO_DEBUG = logging.DEBUG
-RWO_INFO = logging.INFO
-RWO_ERROR = logging.ERROR
 
 RWO_HOME = os.getenv("RWO_HOME", ".")
 
 
 class RwoMessagesFilter(logging.Filter):
-    """
+    """ """
 
-    """
     def __init__(self, logger_name):
         self._logger_name = logger_name
 
@@ -24,6 +21,18 @@ class RwoMessagesFilter(logging.Filter):
         :return:
         """
         return record.name == self._logger_name
+
+
+class AIOTaskLogFormatter(logging.Formatter):
+    def __init__(self):
+        super().__init__(datefmt="%Y-%m-%d %H:%M:%S")
+
+    def format(self, record):
+        try:
+            task_name = asyncio.current_task().get_name()
+        except:
+            task_name = "[main]"
+        return f"{self.formatTime(record, self.datefmt)} [{task_name}] [{record.levelname}] {record.getMessage()}"
 
 
 def init_logger(filename, level, logger_name="logger"):
@@ -42,45 +51,23 @@ def init_logger(filename, level, logger_name="logger"):
     if not log_path.exists():
         os.makedirs(log_path, exist_ok=True)
     rh = concurrent_log_handler.ConcurrentRotatingFileHandler(
-        log_path / filename,
-        maxBytes=10485760,
-        backupCount=10,
-        use_gzip=True
+        log_path / filename, maxBytes=10485760, backupCount=10, use_gzip=True
     )
     rh.setLevel(level)
-    rh.setFormatter(logging.Formatter("%(asctime)s %(levelname)-8s %(message)s"))
+    rh.setFormatter(AIOTaskLogFormatter())
     logger.addHandler(rh)
     logger.propagate = False
 
     return logger
+
 
 def create_handler(filename, level):
     rh = concurrent_log_handler.ConcurrentRotatingFileHandler(
         filename, maxBytes=10485760, backupCount=10, use_gzip=True
     )
     rh.setLevel(level)
-    rh.setFormatter(logging.Formatter("%(asctime)s %(levelname)-8s %(message)s"))
+    rh.setFormatter(AIOTaskLogFormatter())
     return rh
 
-def debug_message(msg):
-    """
 
-    :param msg:
-    """
-    logging.debug(msg)
-
-
-def error_message(msg):
-    """
-
-    :param msg:
-    """
-    logging.error(msg)
-
-
-def info_message(msg):
-    """
-
-    :param msg:
-    """
-    logging.info(msg)
+# deprecate limited LEVEL_message() methods in favor of direct logger.LEVEL() supporting all levels
