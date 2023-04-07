@@ -2,8 +2,8 @@ import { ethers } from "ethers";
 import CryptoStore from "../abi/contracts/CryptoStore.sol/CryptoStore.json";
 import RandomToken from "../abi/contracts/RandomToken.sol/RandomToken.json";
 
-export const CRYPTO_STORE_CONTRACT: string = "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9";
-export const TOKEN_CONTRACT: string = "0x9E545E3C0baAB3E08CdfD552C960A1050f373042";
+export const CRYPTO_STORE_CONTRACT: string = "0x9d4454B023096f34B160D6B654540c56A1F81688";
+export const TOKEN_CONTRACT: string = "0x8f86403A4DE0BB5791fa46B8e795C547942fE4Cf";
 
 export function getCryptoStoreContract() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
