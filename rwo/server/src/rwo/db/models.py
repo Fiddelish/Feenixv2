@@ -50,20 +50,19 @@ class Order(Base):
         default=datetime.utcnow(),
         onupdate=datetime.utcnow(),
     )
-    notifications = relationship("OrderNotification", back_populates="order")
     product = relationship("Product")
     CheckConstraint("quantity > 0")
 
 
-class OrderNotification(Base):
-    __tablename__ = "order_notification"
+class Notification(Base):
+    __tablename__ = "notification"
     id = Column(Integer, primary_key=True)
-    order_id = Column(Integer, ForeignKey("order.id"), nullable=False)
-    status = Column(String(32), nullable=False)
     subscriber = Column(String(16), nullable=False)
     channel = Column(String(16), nullable=False)
+    recipient = Column(String(255), nullable=False)
+    data = Column(Text, nullable=True)
     successful = Column(Boolean, nullable=True)
-    report = Column(Text)
+    delivery_report = Column(Text, nullable=True)
     created_at = Column(
         DateTime(timezone=True), nullable=False, default=datetime.utcnow()
     )
@@ -74,6 +73,8 @@ class OrderNotification(Base):
         onupdate=datetime.utcnow(),
     )
     __table_args__ = (
-        Index("ntfyIDX", "order_id", "status", "subscriber", "channel", unique=True),
+        Index("subscriberIDX", "subscriber", unique=False),
+        Index("channelIDX", "channel", unique=False),
+        Index("recipientIDX", "recipient", unique=False),
+        Index("successfulIDX", "successful", unique=False),
     )
-    order = relationship("Order", back_populates="notifications")
