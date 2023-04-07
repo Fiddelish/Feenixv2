@@ -20,10 +20,22 @@ async function main() {
   console.log("Crypto Store: token address set");
 
   let pid = await cryptoStore.GetProductID();
-  await cryptoStore.AddProduct(pid, ethers.utils.parseUnits("16.99", decimals));
+  await cryptoStore.AddProduct(pid, ethers.utils.parseUnits("150", decimals));
   console.log(`Added product ${pid}`);
   pid = await cryptoStore.GetProductID();
-  await cryptoStore.AddProduct(pid, ethers.utils.parseUnits("21.50", decimals));
+  await cryptoStore.AddProduct(pid, ethers.utils.parseUnits("100", decimals));
+  console.log(`Added product ${pid}`);
+  pid = await cryptoStore.GetProductID();
+  await cryptoStore.AddProduct(pid, ethers.utils.parseUnits("10", decimals));
+  console.log(`Added product ${pid}`);
+  pid = await cryptoStore.GetProductID();
+  await cryptoStore.AddProduct(pid, ethers.utils.parseUnits("25", decimals));
+  console.log(`Added product ${pid}`);
+  pid = await cryptoStore.GetProductID();
+  await cryptoStore.AddProduct(pid, ethers.utils.parseUnits("30", decimals));
+  console.log(`Added product ${pid}`);
+  pid = await cryptoStore.GetProductID();
+  await cryptoStore.AddProduct(pid, ethers.utils.parseUnits("20", decimals));
   console.log(`Added product ${pid}`);
   await cryptoStore.UpdateDev1Wallet(dev1.address);
   console.log(`Updated dev1 wallet`);
