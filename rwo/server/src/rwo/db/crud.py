@@ -108,6 +108,17 @@ def add_order(order: apimodels.Order, db: Session) -> dbmodels.Order:
 #
 # Notifications
 #
+def add_order_notification(order_notification: dbmodels.OrderNotification):
+    # don't forget to do:
+    #
+    # redis.lpush(
+    #     f"rwo:notify:${order_notification.channel}:${order_notification.subscriber}",
+    #     order_notification.id,
+    # )
+
+    pass
+
+
 def get_order_notifications(
     channel: apimodels.NotificationChannel,
     subscriber: apimodels.NotificationSubscriber,
