@@ -25,7 +25,7 @@ export default function ProductList(
     const [order, setOrder] = useState<Order>();
     const [product, setProduct] = useState<Product>();
     const [totalAmount, setTotalAmount] = useState("");
-    const [tokenName, setTokenName] = useState("");
+    const [tokenSymbol, setTokenSymbol] = useState("");
 
     function retrieveOrder() {
         const rReq: RetrieveOrderRequest = {
@@ -56,7 +56,7 @@ export default function ProductList(
                 }).subscribe(
                     (resp) => {
                         setTotalAmount(toJSNumberString(resp.totalAmount as BigNumber, resp.decimals as number, 4));
-                        setTokenName(resp.tokenSymbol as string);
+                        setTokenSymbol(resp.tokenSymbol as string);
                         const product: Product = resp.product.data;
                         setProduct(product);
                         setVerified(true);
@@ -93,31 +93,46 @@ export default function ProductList(
     return (
         <>
             {isVerified && (order !== undefined) && (product !== undefined) && (
-                <div
-                    className="flex h-80 w-3/4
-                        flex-col gap-y-5 overflow-hidden
-                        rounded-md bg-stone-100 shadow-2xl
-                        shadow-black"
-                >
-                    <div className="flex justify-center">
-                        <div className="grid grid-cols-2 p-2 w-1/2">
-                            <div>Order ID:</div>
-                            <div>{order.id}</div>
-                            <div>Product ID:</div>
-                            <div>{order.product_id}</div>
-                            <div>Product Name:</div>
-                            <div>{product.name}</div>
-                            <div>Transaction ID:</div>
-                            <div>{order.tx_id}</div>
-                            <div>Transaction Hash:</div>
-                            <div>{order.tx_hash}</div>
-                            <div>Total amount paid (with taxes):</div>
-                            <div>{totalAmount} {tokenName}</div>
-                            <div>Order Status:</div>
-                            <div>{order.status}</div>
-                        </div>
+                <div>
+                    <div>
+                        <table
+                            className="table-auto
+                                border-separate border-spacing-1
+                                border border-slate-600"
+                        >
+                            <tbody>
+                                <tr>
+                                    <td className="border border-slate-400">Order ID:</td>
+                                    <td className="border border-slate-400">{order.id}</td>
+                                </tr>
+                                <tr>
+                                    <td className="border border-slate-400">Product ID:</td>
+                                    <td className="border border-slate-400">{order.product_id}</td>
+                                </tr>
+                                <tr>
+                                    <td className="border border-slate-400">Product Name:</td>
+                                    <td className="border border-slate-400">{product.name}</td>
+                                </tr>
+                                <tr>
+                                    <td className="border border-slate-400">Transaction ID:</td>
+                                    <td className="border border-slate-400">{order.tx_id}</td>
+                                </tr>
+                                <tr>
+                                    <td className="border border-slate-400">Transaction Hash:</td>
+                                    <td className="border border-slate-400">{order.tx_hash}</td>
+                                </tr>
+                                <tr>
+                                    <td className="border border-slate-400">Total amount paid (with taxes):</td>
+                                    <td className="border border-slate-400">{totalAmount} {tokenSymbol}</td>
+                                </tr>
+                                <tr>
+                                    <td className="border border-slate-400">Order Status:</td>
+                                    <td className="border border-slate-400">{order.status}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div className="flex justify-center">
+                    <div className="flex justify-center py-4">
                         <button
                             className="w-48 rounded-md
                                 bg-violet-500
