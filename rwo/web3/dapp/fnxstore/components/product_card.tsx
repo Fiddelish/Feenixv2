@@ -57,21 +57,21 @@ export default function ProductCard({ product }: { product: Product }) {
             >
                 <Image
                     priority
-                    className="h-24 w-64 object-cover"
+                    className="h-40 w-64 object-cover"
                     src={`/images/${product.id}.png`}
                     width="0"
                     height="0"
                     sizes="100vw"
                     alt=""
                 />
-                <div className="h-32 overflow-hidden px-8 text-stone-800 ">
+                <div className="h-16 overflow-hidden px-8 text-stone-800 ">
                     <div className="text-xl font-bold">{product.name}</div>
                     <div className="text-md mb-2 text-stone-600">{product.description}</div>
                 </div>
                 {active && (
                     <div className="flex w-full justify-center">
                         <button
-                            className="w-32 rounded-md
+                            className="w-40 rounded-md
                             bg-violet-500
                             py-2
                             px-4 font-bold text-white shadow-md shadow-violet-900 hover:bg-violet-600 focus:ring-0 focus:ring-offset-0 disabled:bg-gray-400 disabled:shadow-gray-900 disabled:shadow-sm active:shadow-sm active:shadow-violet-900"
@@ -103,7 +103,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 }}
                 ariaHideApp={false}
             >
-                <Buy product={product} />
+                <Buy product={product} close={closeModal} />
             </Modal>
         </>
     );
