@@ -1,6 +1,5 @@
-# type: ignore
 from typing import Any, Callable, List
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from . import models as dbmodels
 from ..api import models as apimodels
 
@@ -104,3 +103,53 @@ def add_order(order: apimodels.Order, db: Session) -> dbmodels.Order:
     db.commit()
     db.refresh(db_order)
     return db_order
+
+
+#
+# Notifications
+#
+def add_order_notification(order_notification: dbmodels.OrderNotification):
+    # don't forget to do:
+    #
+    # redis.lpush(
+    #     f"rwo:notify:${order_notification.channel}:${order_notification.subscriber}",
+    #     order_notification.id,
+    # )
+
+    pass
+
+
+def get_order_notifications(
+    channel: apimodels.NotificationChannel,
+    subscriber: apimodels.NotificationSubscriber,
+    cursor: int,
+    chunk_size: int,
+    db: Session,
+) -> List[apimodels.OrderNotification]:
+    return (
+        db.query(dbmodels.OrderNotification, dbmodels.Order, dbmodels.Product)
+        .select_from(dbmodels.OrderNotification)
+        .join(dbmodels.Order)
+        .join(dbmodels.Product)
+        .filter(
+            dbmodels.OrderNotification.id > (0 if cursor is None else cursor),
+            dbmodels.OrderNotification.successful.is_(None),
+            dbmodels.OrderNotification.channel == channel,
+            dbmodels.OrderNotification.subscriber == subscriber,
+        )
+        .order_by(dbmodels.OrderNotification.id.asc())
+        .limit(chunk_size)
+        .all()
+    )
+
+
+def update_order_notification(
+    id: int,
+    successful: bool,
+    report: str,
+    db: Session,
+):
+    row = db.query(dbmodels.OrderNotification).filter_by(id=id).one()
+    row.successful = successful
+    row.report = report
+    db.commit()
