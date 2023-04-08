@@ -31,7 +31,7 @@ interface IEmailInputs {
     email2: string;
 }
 
-export default function Buy({ product }: { product: Product }) {
+export default function Buy({ product, close }: { product: Product, close: () => void }) {
     const { account, active } = useWeb3React();
     const [decimals, setDecimals] = useState(0);
     const [productPrice, setProductPrice] = useState("");
@@ -90,7 +90,7 @@ export default function Buy({ product }: { product: Product }) {
             (reason) => {
                 alert(`Order rejected: ${reason}`);
             }
-        ).finally(updateApproval)
+        ).finally(close)
     }
 
     function ActionButton() {
@@ -169,14 +169,18 @@ export default function Buy({ product }: { product: Product }) {
             data => {
                 const allowance: BigNumber = data.allowance as BigNumber;
                 const localFullPrice: BigNumber = data.fullPrice as BigNumber;
+                console.log(toJSNumberString(allowance, 6, 4));
+                console.log(toJSNumberString(localFullPrice, 6, 4));
                 setDecimals(data.decimals as number);
                 setProductPrice(toJSNumberString(data.productPrice as BigNumber, data.decimals as number));
                 setTotalFees((data.totalFees as BigNumber).toString());
                 setFullPrice(localFullPrice);
-                if (allowance < localFullPrice) {
+                if (allowance.lt(localFullPrice)) {
                     setShouldApprove(true);
+                    console.log("SHOULD approve");
                 } else {
                     setShouldApprove(false);
+                    console.log("should NOT approve");
                 }
             }
         );
@@ -186,7 +190,7 @@ export default function Buy({ product }: { product: Product }) {
         <div className="flex flex-col items-center">
             <Image
                 priority
-                className="h-32 w-64 border object-cover"
+                className="h-48 w-80 border object-cover"
                 width={0}
                 height={0}
                 sizes="100vw"

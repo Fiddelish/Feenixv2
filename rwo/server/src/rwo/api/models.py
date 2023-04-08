@@ -41,8 +41,8 @@ class Order(BaseModel):
     token: str
     tx_hash: Optional[str] = Field(None, nullable=True)
     status: OrderStatus
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = Field(None, nullable=True)
+    updated_at: Optional[datetime] = Field(None, nullable=True)
 
     class Config:
         orm_mode = True

@@ -116,6 +116,7 @@ export default function Wallet() {
                             false
                         );
                         setProvider("coinbaseWallet");
+                        closeModal();
                     }}
                 >
                     <Image src="/images/cbw.png" alt="Coinbase Wallet Logo" width={25} height={25} />
@@ -133,6 +134,7 @@ export default function Wallet() {
                             false
                         );
                         setProvider("injected");
+                        closeModal();
                     }}
                 >
                     <Image className="" src="/images/mm.png" alt="Metamask Logo" width={25} height={25} />
