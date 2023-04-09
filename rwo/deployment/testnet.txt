@@ -1,0 +1,16 @@
+Token contract deployed to 0xF8f9BAFaBe2d7c56f6e8b7CCaCc70FF9340Fc779
+Deploying Crypto Store
+Crypto Store contract deployed to 0xaf25b82f9a1fB867967233D0700024C82910bFa1
+Crypto Store: token address set
+Added product 1
+Added product 2
+Added product 3
+Added product 4
+Added product 5
+Added product 6
+Updated dev1 wallet: 0xf0F1b1B43846EDb3f0507FC8aD1BA1af88c60b95
+Updated dev2 wallet: 0xE8Fe602269aDe2C416f327a3eF666394B9c495FF
+Updated dev3 wallet: 0x0640989fDf4a6B203da97b31f215dBAF33D4dB37
+Updated rwo wallet: 0xF0D0CcfB49B80436C1563EBA59F7E69770617070
+Updated fnx wallet: 0x85047c1DB2a934De12E2724e79b3093056344aF4
+Transferred 1000000 tokens to 0xc5c1E42275Ba446f899B9dbf311111E735201463
