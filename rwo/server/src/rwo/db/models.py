@@ -26,7 +26,7 @@ class Product(Base):
     __tablename__ = "product"
     id = Column(Integer, primary_key=True)
     name = Column(String(255), unique=True, nullable=False)
-    description = Column(String(1024), unique=True, nullable=True)
+    description = Column(String(1024), nullable=True)
     quantity = Column(Integer, nullable=False)
 
 
