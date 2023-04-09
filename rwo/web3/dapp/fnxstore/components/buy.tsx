@@ -33,7 +33,7 @@ interface IEmailInputs {
 
 export default function Buy({ product, close }: { product: Product, close: () => void }) {
     const { account, active } = useWeb3React();
-    const [decimals, setDecimals] = useState(0);
+    const [inTx, setInTx] = useState(false);
     const [productPrice, setProductPrice] = useState("");
     const [totalFees, setTotalFees] = useState("");
     const [fullPrice, setFullPrice] = useState<BigNumber>(BigNumber.from(0));
@@ -42,6 +42,7 @@ export default function Buy({ product, close }: { product: Product, close: () =>
     const { handleSubmit } = useForm();
 
     async function approve() {
+        setInTx(true);
         const tokenContract = getTokenContract();
         const txApproval: ContractTransaction = await tokenContract.approve(
             CRYPTO_STORE_CONTRACT,
@@ -49,9 +50,11 @@ export default function Buy({ product, close }: { product: Product, close: () =>
         );
         await txApproval.wait();
         updateApproval();
+        setInTx(false);
     }
 
     async function purchaseProduct(email: string) {
+        setInTx(true);
         const orderApi = getOrderApi();
         if (!account) {
             return;
@@ -69,6 +72,7 @@ export default function Buy({ product, close }: { product: Product, close: () =>
         ))?.data;
         if (!resp) {
             updateApproval();
+            setInTx(false);
             return;
         }
         const txId: string = resp.tx_id;
@@ -108,6 +112,7 @@ export default function Buy({ product, close }: { product: Product, close: () =>
                 className="w-full rounded-sm bg-violet-500
                 py-2 px-4 font-bold text-white hover:bg-violet-600"
                 onClick={shouldApprove ? approve : purchase}
+                disabled={inTx}
             >
                 {shouldApprove ? "Approve" : "Purchase for"} {productPrice} + fees ({totalFees}%) USDC
             </button>
@@ -171,7 +176,6 @@ export default function Buy({ product, close }: { product: Product, close: () =>
                 const localFullPrice: BigNumber = data.fullPrice as BigNumber;
                 console.log(toJSNumberString(allowance, 6, 4));
                 console.log(toJSNumberString(localFullPrice, 6, 4));
-                setDecimals(data.decimals as number);
                 setProductPrice(toJSNumberString(data.productPrice as BigNumber, data.decimals as number));
                 setTotalFees((data.totalFees as BigNumber).toString());
                 setFullPrice(localFullPrice);
