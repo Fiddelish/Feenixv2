@@ -1,5 +1,6 @@
 from rwo.api import models as apimodels
 from rwo.db import models as dbmodels
+from rwo.common.utils import datetime_to_iso
 from faker import Faker
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
@@ -40,9 +41,9 @@ def DBSession(customer_id: str = None):
 
 def fake_order_notifications(db: Session):
     faker = Faker("sv_SE")
-    for _ in range(5):
+    for _ in range(10):
         o = dbmodels.Order(
-            product_id=random.choice([1, 2]),
+            product_id=random.choice([1, 2, 3, 4, 5, 6]),
             email=faker.email(),
             wallet="".join(
                 random.choice(string.ascii_letters + string.digits) for i in range(32)
@@ -60,12 +61,14 @@ def fake_order_notifications(db: Session):
                 ]
             ),
         )
+        db.add(o)
+        db.commit()
+        db.refresh(o)
         odict = {
-            key: value
+            key: datetime_to_iso(value)
             for key, value in o.__dict__.items()
             if not key.startswith("_sa_")
         }
-        db.add(o)
 
         if o.status in [
             apimodels.OrderStatus.pending,
