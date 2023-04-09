@@ -1,0 +1,35 @@
+version: '3.3'
+services:
+
+  rwoapi:
+    image: rwo_server:dev
+    restart: on-failure
+    ports:
+      - "15500:5000"
+    environment:
+      - RWO_HOME=.
+      - RWO_DB_USER=${RWO_DB_USER}
+      - RWO_DB_PASSWORD=${RWO_DB_PASSWORD}
+      - RWO_DB_SERVER=rwodb:5432
+      - RWO_DB=${RWO_DB}
+      - REDIS_SERVER=redis:6379
+      - RWO_API_SERVER=http://localhost:5000
+      - EXTRA_CORS_ORIGINS=https://${COMMON_NAME}
+      - WEB3_HTTP_PROVIDER=${WEB3_HTTP_PROVIDER}
+      - CRYPTO_STORE_CONTRACT=${CRYPTO_STORE_CONTRACT}
+      - ABI_PATH=/opt/rwo/abi
+    command: rwoapi
+    networks:
+      - rwo_network
+
+  rwoportal:
+    image: rwo_portal:dev
+    restart: on-failure
+    ports:
+      - "15300:3000"
+    networks:
+      - rwo_network
+
+networks:
+  rwo_network:
+    external: true
