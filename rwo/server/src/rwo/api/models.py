@@ -53,7 +53,7 @@ class Notification(BaseModel):
     subscriber: NotificationSubscriber
     channel: NotificationChannel
     recipient: str
-    data: Dict[str, Any]
+    data: Any
     successful: Optional[bool] = Field(None, nullable=True)
     delivery_report: Optional[str] = Field(None, nullable=True)
     created_at: datetime
