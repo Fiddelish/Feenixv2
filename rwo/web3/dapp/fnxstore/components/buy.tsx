@@ -110,7 +110,8 @@ export default function Buy({ product, close }: { product: Product, close: () =>
         return email1Valid && email2Valid && email1 === email2 ? (
             <button
                 className="w-full rounded-sm bg-violet-500
-                py-2 px-4 font-bold text-white hover:bg-violet-600"
+                py-2 px-4 font-bold text-white hover:bg-violet-600
+                disabled:bg-gray-400 disabled:shadow-gray-900 disabled:shadow-sm"
                 onClick={shouldApprove ? approve : purchase}
                 disabled={inTx}
             >
