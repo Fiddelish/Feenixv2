@@ -47,7 +47,7 @@ jinja2_environment.filters["datetime_fmt"] = jinja2_iso_format_datetime
 
 jinja2_email_tmpl = {
     "user": {
-        "subject": "RWO Order Status: {{status}}",
+        "subject": "RWO Order {{id}} status: {{status}}",
         "body": textwrap.dedent(
             """
             Dear User,
@@ -56,12 +56,14 @@ jinja2_email_tmpl = {
             Created (UTC): {{ created_at|datetime_fmt("%Y-%m-%d %H:%M:%S") }}
             Transaction ID: {{tx_id}}
 
-            kind regards
+            Thank you for shopping with us!
+
+            This is an automated message. Please do not reply.
             """
         ),
     },
     "admin": {
-        "subject": "RWO ADMIN order {{id}} status {{status}}",
+        "subject": "RWO ADMIN order {{id}} status: {{status}}",
         "body": textwrap.dedent(
             """
             Dear Admin,
