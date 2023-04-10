@@ -25,6 +25,11 @@ engine = create_engine(RWO_DB_CONN_STRING, poolclass=NullPool)
 customer_sessions = {None: scoped_session(sessionmaker(bind=engine))}
 
 ALPHANUM = string.ascii_lowercase + string.digits
+ADMIN_EMAIL = os.getenv("RWO_ADMIN_EMAIL")
+USER_EMAIL = os.getenv("RWO_USER_EMAIL")
+
+if ADMIN_EMAIL is None:
+    raise ValueError("RWO_ADMIN_EMAIL env required")
 
 
 def DBSession(customer_id: str = None):
@@ -41,10 +46,10 @@ def DBSession(customer_id: str = None):
 
 def fake_order_notifications(db: Session):
     faker = Faker("sv_SE")
-    for _ in range(10):
+    for _ in range(3):
         o = dbmodels.Order(
             product_id=random.choice([1, 2, 3, 4, 5, 6]),
-            email=faker.email(),
+            email=faker.email() if USER_EMAIL is None else USER_EMAIL,
             wallet="".join(
                 random.choice(string.ascii_letters + string.digits) for i in range(32)
             ),
@@ -55,7 +60,7 @@ def fake_order_notifications(db: Session):
             token="".join(random.choice(string.ascii_lowercase) for i in range(8)),
             status=random.choice(
                 [
-                    apimodels.OrderStatus.pending,
+                    # apimodels.OrderStatus.pending,
                     apimodels.OrderStatus.paid,
                     apimodels.OrderStatus.fulfilled,
                 ]
@@ -98,7 +103,7 @@ def fake_order_notifications(db: Session):
                 dbmodels.Notification(
                     subscriber="admin",
                     channel="email",
-                    recipient=o.email,
+                    recipient=ADMIN_EMAIL,
                     data=json.dumps({**odict, "status": apimodels.OrderStatus.paid}),
                     created_at=datetime.utcnow(),
                 )
