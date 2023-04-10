@@ -1,14 +1,18 @@
 import json
+import uuid
 import os
 import aioredis
 import asyncio
 import aiosmtplib
 import traceback
-from aiosmtplib import errors as SMTPErrors
+import socket
+from aiosmtplib import errors as SMTPErrors, SMTPResponse
+import textwrap
+from datetime import datetime
 
 from email.mime.text import MIMEText
+from email.utils import make_msgid
 from jinja2 import Environment, BaseLoader
-import textwrap
 
 from rwo.common import logging as rwo_logging
 from rwo.common.utils import datetime_to_iso, mask_email, env_to_bool
@@ -16,14 +20,15 @@ from rwo.common.utils import datetime_to_iso, mask_email, env_to_bool
 from rwo_py_sdk import ApiClient as RWOApiClient
 from rwo_py_sdk.configuration import Configuration as RWOConfiguration
 from rwo_py_sdk.apis import NotificationApi
-from rwo_py_sdk.models import UpdateNDSRequest
+from rwo_py_sdk.models import UpdateNDSRequest, Notification
 
 DEVMODE = env_to_bool("RWO_DEVMODE")
 API_URL = os.getenv("RWO_API_URL", "http://localhost:5000")
 REDIS_URL = os.getenv("RWO_REDIS_URL")
-SMTP_HOST = os.getenv("RWO_SMTP_HOST", "localhost")
+SMTP_SERVER = os.getenv("RWO_SMTP_SERVER", "localhost")
 SMTP_PORT = os.getenv("RWO_SMTP_PORT", "25")
-SMTP_SENDER = os.getenv("RWO_SMTP_SEMDER", "")
+SMTP_LOCAL_FQDN = os.getenv("RWO_SMTP_LOCAL_FQDN", socket.getfqdn())
+SMTP_SENDER = os.getenv("RWO_SMTP_SENDER")
 SMTP_STARTTLS = env_to_bool("RWO_SMTP_STARTTLS")
 SMTP_USER = os.getenv("RWO_SMTP_USER")
 SMTP_PASSWORD = os.getenv("RWO_SMTP_PASSWORD")
@@ -31,6 +36,14 @@ SMTP_PASSWORD = os.getenv("RWO_SMTP_PASSWORD")
 QUEUE_GUARD_TIMEOUT = 60 * 30
 EMAIL_RETRY_TIME = 60 * 5
 CHUNK_SIZE = 50
+
+
+def jinja2_iso_format_datetime(value, format="%H:%M %d-%m-%y"):
+    return datetime.fromisoformat(value).strftime(format)
+
+
+jinja2_environment = Environment(loader=BaseLoader())
+jinja2_environment.filters["datetime_fmt"] = jinja2_iso_format_datetime
 
 jinja2_email_tmpl = {
     "user": {
@@ -40,7 +53,7 @@ jinja2_email_tmpl = {
             Dear User,
 
             Your order {{id}} status is {{ status }}
-            Created (UTC): {{ created_at }}
+            Created (UTC): {{ created_at|datetime_fmt("%Y-%m-%d %H:%M:%S") }}
             Transaction ID: {{tx_id}}
 
             kind regards
@@ -115,8 +128,11 @@ async def email_notify_thread(subscriber: str):
             logger.debug(
                 f"{len(notifications)} notifications from chunk of {CHUNK_SIZE}"
             )
-            logger.debug(f"trying SMTP {SMTP_HOST}:{SMTP_PORT}")
-            smtp_client = aiosmtplib.SMTP(hostname=SMTP_HOST, port=SMTP_PORT)
+            logger.debug(f"trying SMTP {SMTP_SERVER}:{SMTP_PORT}")
+            smtp_client = aiosmtplib.SMTP(
+                hostname=SMTP_SERVER,
+                port=SMTP_PORT,
+            )
             await smtp_client.connect()
             if SMTP_STARTTLS:
                 logger.debug(f"SMTP STARTTLS enforced")
@@ -126,30 +142,42 @@ async def email_notify_thread(subscriber: str):
                 await smtp_client.login(SMTP_USER, SMTP_PASSWORD)
             for _ in notifications:
                 successful: bool = None
-
-                # logger.debug(f"data[id]={_.data['id']}")
-                # message = MIMEText(
-                #     json.dumps(_.data, indent=2, default=datetime_to_iso)
-                # )
-                message = MIMEText(
-                    Environment(loader=BaseLoader())
-                    .from_string(jinja2_email_tmpl[subscriber]["body"])
-                    .render(_.data)
-                )
-                message["From"] = "notify-DAEMON <>"
-                message["To"] = _.recipient
-                message["Subject"] = (
-                    Environment(loader=BaseLoader())
-                    .from_string(jinja2_email_tmpl[subscriber]["subject"])
-                    .render(_.data)
-                )
+                response: SMTPResponse
 
                 try:
-                    logger.info(f"sendmail to {mask_email(_.recipient)}")
-                    id, response = await smtp_client.sendmail(
-                        SMTP_SENDER, _.recipient, message.as_bytes()
+                    # logger.debug(f"data[id]={_.data['id']}")
+                    # message = MIMEText(
+                    #     json.dumps(_.data, indent=2, default=datetime_to_iso)
+                    # )
+                    logger.debug(f"SMTP MAIL FROM: <{SMTP_SENDER}>")
+                    response = await smtp_client.mail(SMTP_SENDER)
+                    logger.debug(f"response: {response.code} {response.message}")
+                    logger.debug(f"SMTP RCPT TO: <{_.recipient}>")
+                    response = await smtp_client.rcpt(_.recipient)
+                    logger.debug(f"response: {response.code} {response.message}")
+
+                    message = MIMEText(
+                        jinja2_environment.from_string(
+                            jinja2_email_tmpl[subscriber]["body"]
+                        ).render(_.data)
                     )
-                    logger.debug(f"successful sendmail id={id}, response={response}")
+                    message["From"] = f"RWO Store <{SMTP_SENDER}>"
+                    message["To"] = _.recipient
+                    message["Subject"] = jinja2_environment.from_string(
+                        jinja2_email_tmpl[subscriber]["subject"]
+                    ).render(_.data)
+                    message["Message-ID"] = make_msgid(
+                        idstring=str(uuid.uuid4()), domain=SMTP_LOCAL_FQDN
+                    )
+                    logger.debug(f"SMTP DATA")
+                    response = await smtp_client.data(message=message.as_bytes())
+                    logger.debug(f"response: {response.code} {response.message}")
+
+                    # logger.info(f"sendmail to {mask_email(_.recipient)}")
+                    # id, response = await smtp_client.sendmail(
+                    #     SMTP_SENDER, _.recipient, message.as_bytes()
+                    # )
+                    # logger.debug(f"successful sendmail id={id}, response={response}")
                     successful = True
                 except (
                     SMTPErrors.SMTPRecipientRefused,
@@ -158,21 +186,22 @@ async def email_notify_thread(subscriber: str):
                 ) as e:
                     logger.error(f"permanent sendmail error: {e}")
                     successful = False
-                    response = str(e)
+                    response = SMTPResponse(599, str(e))
                 except Exception as e:
                     logger.warn(f"temporary sendmail error: {e}")
                     successful = None
-                    response = str(e)
+                    response = SMTPResponse(499, str(e))
                     raise e
                 finally:
                     logger.debug(
-                        f"notification id={_.id} delivery status success={successful}, report: {response}"
+                        f"notification id={_.id} delivery status success={successful}, report: {response.code} {response.message}"
                     )
                     cursor = _.id
                     api.delivery_status(
                         _.id,
                         UpdateNDSRequest(
-                            delivery_report=response, successful=successful
+                            delivery_report=f"{response.code} {response.message}",
+                            successful=successful,
                         ),
                     )
             logger.debug(f"closing SMTP")
@@ -227,6 +256,14 @@ async def main():
 
     if DEVMODE:
         logger.warn(f"running in DEVMODE")
+
+    if SMTP_SENDER is None:
+        logger.fatal(f"RWO_SMTP_SENDER env is required")
+        return
+
+    if SMTP_LOCAL_FQDN is None:
+        logger.fatal(f"RWO_SMTP_LOCAL_FQDN env is required")
+        return
 
     if not REDIS_URL is None:
         logger.debug(f"using {REDIS_URL}")
