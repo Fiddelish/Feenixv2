@@ -22,7 +22,7 @@ services:
     networks:
       - rwo_network
 
-  rwoportal:
+  fnxstore:
     image: rwo_portal:dev
     restart: on-failure
     ports:

@@ -1,3 +1,4 @@
 #!/bin/bash
+. .env
 echo $CERTBOT_VALIDATION > $ACME_HTTP01_FOLDER/$CERTBOT_TOKEN
 
