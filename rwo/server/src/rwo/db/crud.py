@@ -126,6 +126,8 @@ def add_notification(
         _.created_at = notification.created_at
         _.updated_at = notification.updated_at
         notification = _
+    else:
+        notification.id = None
     db.add(notification)
     db.commit()
     db.refresh(notification)

@@ -1,4 +1,5 @@
 from typing import Dict, Any
+import json
 import aioredis
 from sqlalchemy.orm import Session
 
@@ -17,10 +18,11 @@ async def create(
     global redis_pool
     notification = crud.add_notification(
         dbmodels.Notification(
+            id=0,
             subscriber=subscriber,
             channel=channel,
             recipient=recipient,
-            data=data,
+            data=json.dumps(data, default=str),
         ),
         db,
     )

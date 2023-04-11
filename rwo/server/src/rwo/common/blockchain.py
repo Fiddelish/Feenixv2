@@ -48,7 +48,7 @@ def verify_hash(
     )
     try:
         w3 = web3.Web3(web3.HTTPProvider(WEB3_HTTP_PROVIDER))
-        w3.eth.wait_for_transaction_receipt(tx_hash, timeout=10)
+        w3.eth.wait_for_transaction_receipt(tx_hash, timeout=30)
         tx = w3.eth.getTransaction(tx_hash)
         tx_from = tx.get("from")
         require(tx_from == wallet, "Wrong wallet")

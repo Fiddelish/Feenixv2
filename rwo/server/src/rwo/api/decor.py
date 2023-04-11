@@ -16,3 +16,18 @@ def rollback_error500():
                 )
         return handle_exception
     return decor
+
+def async_rollback_error500():
+    def decor(f):
+        @wraps(f)
+        async def handle_exception(*args, **kwargs):
+            try:
+                return await f(*args, **kwargs)
+            except Exception as e:
+                db = kwargs.get("db")
+                db.rollback()
+                raise HTTPException(
+                    status_code=500, detail=exception_stack_trace()
+                )
+        return handle_exception
+    return decor
