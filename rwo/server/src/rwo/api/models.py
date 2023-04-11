@@ -1,5 +1,5 @@
-from typing import Optional
-from pydantic import BaseModel, Field, validator
+from typing import Optional, Dict, Any
+from pydantic import BaseModel, Field
 from enum import Enum
 from datetime import datetime
 
@@ -48,35 +48,19 @@ class Order(BaseModel):
         orm_mode = True
 
 
-class OrderNotification(BaseModel):
+class Notification(BaseModel):
     id: int
-    product_name: str
-    product_description: str
-    product_price: int
-    product_quantity: int
-    order_status: OrderStatus
-    order_email: str
-    order_tx_id: Optional[str] = Field(None, nullable=True)
-    order_token: Optional[str] = Field(None, nullable=True)
     subscriber: NotificationSubscriber
     channel: NotificationChannel
+    recipient: str
+    data: Any
     successful: Optional[bool] = Field(None, nullable=True)
-    report: Optional[str] = Field(None, nullable=True)
+    delivery_report: Optional[str] = Field(None, nullable=True)
     created_at: datetime
     updated_at: datetime
 
-    @validator("product_price", pre=True)
-    def cast_bigint(cls, v):
-        return int(v)
-
     class Config:
         orm_mode = True
-        extra = "forbid"
-        # json_encoders = {int: str}
-        arbitrary_types_allowed = True
-        validate_assignment = True
-        max_anystr_length = 2**20
-        max_anyint_value = 2**63 - 1
 
 
 class SubmitOrderRequest(BaseModel):
@@ -121,4 +105,4 @@ class FulfillOrderResponse(BaseModel):
 
 class UpdateNDSRequest(BaseModel):
     successful: Optional[bool] = Field(None, nullable=True)
-    report: str
+    delivery_report: Optional[str] = Field(None, nullable=True)
