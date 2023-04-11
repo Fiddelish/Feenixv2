@@ -83,7 +83,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 )}
                 {!active && (
                     <div className="flex w-full justify-center">
-                        <p className="w-40 py-2 px-4 font-bold">Connect wallet to see prices</p>
+                        <div className="mb-2 w-40 rounded-md bg-gray-300 px-4 py-2 text-center">-- USDC</div>
                     </div>
                 )}
             </div>

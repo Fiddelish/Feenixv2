@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { connectors } from "./connectors";
 import { truncateAddress } from "./utils";
 import Modal from "react-modal";
-import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
+import { ExclamationCircleIcon, BanknotesIcon } from "@heroicons/react/24/outline";
 
 export default function Wallet() {
     const { library, account, active, activate, deactivate } = useWeb3React();
@@ -153,13 +153,14 @@ export default function Wallet() {
 
     return (
         <>
-            <div className="py-2 pr-6">
+            <div className="py-2 pr-2">
                 {!active ? (
                     <button
                         type="button"
-                        className="rounded-md
+                        className="flex w-44 flex-row items-center
+                            rounded-md
                             bg-violet-500
-                            px-6
+                            px-4
                             py-2.5
                             text-xs
                             font-semibold
@@ -178,14 +179,15 @@ export default function Wallet() {
                             active:shadow-violet-900"
                         onClick={openModal}
                     >
-                        Connect Wallet
+                        <BanknotesIcon width={16} height={16} />
+                        <span className="ml-2">Connect Wallet</span>
                     </button>
                 ) : (
                     <button
                         type="button"
                         className="rounded-md
                         bg-violet-500
-                        px-6
+                        px-4
                         py-2.5
                         text-xs
                         font-semibold
@@ -214,7 +216,7 @@ export default function Wallet() {
                         <Image src="/images/cbw.png" alt="Coinbase Logo" width={25} height={25} />
                     </div>
                 ) : (
-                    <div className="">{`Account: ${truncateAddress(account)}`}</div>
+                    <div className="pb-4">{`Account: ${truncateAddress(account)}`}</div>
                 )}
             </div>
             <Modal

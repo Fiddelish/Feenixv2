@@ -26,27 +26,26 @@ export default function Layout({ children }: { children: ReactNode }) {
         },
     ];
     return (
-        <>
-            <div>
-                <header>
-                    <nav>
-                        <div className="flex justify-end border-b-2 border-white bg-gradient-to-r from-green-300 to-lime-300">
-                            <Wallet />
-                        </div>
-                        <div className="flex flex-col pt-4 pl-2 sm:flex-row">
+        <div className="flex justify-center">
+            <div className="min-w-full">
+                <header className="sticky top-0 bg-lime-50 shadow-xl">
+                    <nav className="flex items-end justify-between bg-gradient-to-r from-green-300 to-lime-300">
+                        <div className="flex flex-col py-4 pl-1 sm:flex-row ">
                             {menuItems.map(({ href, title }) => (
                                 <div key={href}>
                                     <Link
                                         href={href}
-                                        className={`cursor-pointer rounded-sm px-6 outline-stone-900 hover:outline  ${
-                                            router.asPath === href && "font-semibold"
+                                        className={`cursor-pointer border-green-600 outline-green-600 hover:outline sm:px-4  ${
+                                            router.asPath === href ? "border-b-4" : "border-none"
                                         }`}
                                     >
                                         {title}
                                     </Link>
                                 </div>
                             ))}
-                            <div className="ml-4 flex h-6 flex-row rounded-sm border-stone-900 bg-white">
+                        </div>
+                        {router.asPath === "/" && (
+                            <div className="my-4 flex h-6 w-1/4 flex-row rounded-md border-stone-900 bg-white px-1 lg:mx-4">
                                 <input
                                     type="text"
                                     className="w-36 bg-transparent pl-6 focus:border-transparent focus:ring-transparent"
@@ -55,11 +54,14 @@ export default function Layout({ children }: { children: ReactNode }) {
                                     <MagnifyingGlassIcon className="h-4 pl-1" />
                                 </button>
                             </div>
+                        )}
+                        <div className="">
+                            <Wallet />
                         </div>
                     </nav>
                 </header>
-                <main className="w-full p-8">{children}</main>
+                <main className="w-full bg-lime-50 p-8">{children}</main>
             </div>
-        </>
+        </div>
     );
 }

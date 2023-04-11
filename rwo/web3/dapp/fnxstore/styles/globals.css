@@ -4,6 +4,6 @@
 
 @layer base {
     body {
-        @apply bg-lime-50 text-lime-900;
+        @apply bg-white text-lime-900;
     }
 }
