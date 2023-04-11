@@ -1,12 +1,16 @@
 from typing import List
 from sqlalchemy.orm import Session
+import aioredis
 from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
 )
-
-from ..decor import rollback_error500
+import os
+from ..decor import (
+    rollback_error500,
+    async_rollback_error500,
+)
 from ..models import (
     Order,
     OrderStatus,
@@ -20,13 +24,20 @@ from ..models import (
     FulfillOrderResponse,
 )
 from ...db import crud
-from ..dependencies import get_db_session
+from ..dependencies import (
+    get_db_session,
+    get_redis,
+)
 from ...common import require
 from ...common.blockchain import (
     generate_tx_id,
     generate_token,
     verify_hash,
 )
+from ...manager import notification
+
+RWO_STORE_ADMIN_EMAIL = os.getenv("RWO_STORE_ADMIN_EMAIL")
+RWO_PORTAL_URL = os.getenv("RWO_PORTAL_URL", "http://localhost:3000")
 
 router = APIRouter(
     prefix="/v1/order",
@@ -44,16 +55,15 @@ def submit_order(sor: SubmitOrderRequest, db: Session = Depends(get_db_session))
     order = Order(
         **sor.dict(), id=0, status=OrderStatus.pending, tx_id=tx_id, token=token
     )
-    crud.add_order(order, db)
+    db_order = crud.add_order(order, db)
     return SubmitOrderResponse(tx_id=tx_id)
-
 
 @router.put(
     "/verify", operation_id="verify_order", response_model=VerifyOrderPaymentResponse
 )
-@rollback_error500()
-def verify_order(
-    vopr: VerifyOrderPaymentRequest, db: Session = Depends(get_db_session)
+@async_rollback_error500()
+async def verify_order(
+    vopr: VerifyOrderPaymentRequest, db: Session = Depends(get_db_session), redis: aioredis.Redis = Depends(get_redis)
 ):
     order = crud.get_order_by_tx_id_with_lock(vopr.tx_id, db)
     require(order.status == OrderStatus.pending.value, "Wrong order status")
@@ -66,6 +76,28 @@ def verify_order(
     order.tx_hash = vopr.tx_hash
     order.status = OrderStatus.paid.value
     crud.add_order(order, db)
+    await notification.create(
+        db=db,
+        redis=redis,
+        subscriber="user",
+        channel="email",
+        recipient=order.email,
+        data={
+            "product_id": order.product_id,
+            "status": OrderStatus.paid.value,
+            "tx_id": vopr.tx_id,
+            "created_at": order.created_at
+        }
+    )
+    my_order = Order.from_orm(order)
+    await notification.create(
+        db=db,
+        redis=redis,
+        subscriber="admin",
+        channel="email",
+        recipient=RWO_STORE_ADMIN_EMAIL,
+        data={ **my_order.dict(), "portal_url": RWO_PORTAL_URL }
+    )
     return VerifyOrderPaymentResponse(verified=True)
 
 

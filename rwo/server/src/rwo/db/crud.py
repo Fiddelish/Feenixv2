@@ -108,36 +108,49 @@ def add_order(order: apimodels.Order, db: Session) -> dbmodels.Order:
 #
 # Notifications
 #
-def add_order_notification(order_notification: dbmodels.OrderNotification):
-    # don't forget to do:
-    #
-    # redis.lpush(
-    #     f"rwo:notify:${order_notification.channel}:${order_notification.subscriber}",
-    #     order_notification.id,
-    # )
+def add_notification(
+    notification: dbmodels.Notification, db: Session
+) -> dbmodels.Notification:
+    if notification.id > 0:
+        _: dbmodels.Notification = (
+            db.query(dbmodels.Notification)
+            .filter(dbmodels.Notification.id == notification.id)
+            .one()
+        )
+        _.subscriber = notification.subscriber
+        _.channel = notification.channel
+        _.recipient = notification.recipient
+        _.data = notification.data
+        _.successful = notification.successful
+        _.delivery_report = notification.delivery_report
+        _.created_at = notification.created_at
+        _.updated_at = notification.updated_at
+        notification = _
+    else:
+        notification.id = None
+    db.add(notification)
+    db.commit()
+    db.refresh(notification)
+    return notification
 
-    pass
 
-
-def get_order_notifications(
+def get_notifications(
     channel: apimodels.NotificationChannel,
     subscriber: apimodels.NotificationSubscriber,
     cursor: int,
     chunk_size: int,
     db: Session,
-) -> List[apimodels.OrderNotification]:
+) -> List[apimodels.Notification]:
     return (
-        db.query(dbmodels.OrderNotification, dbmodels.Order, dbmodels.Product)
-        .select_from(dbmodels.OrderNotification)
-        .join(dbmodels.Order)
-        .join(dbmodels.Product)
+        db.query(dbmodels.Notification)
+        .select_from(dbmodels.Notification)
         .filter(
-            dbmodels.OrderNotification.id > (0 if cursor is None else cursor),
-            dbmodels.OrderNotification.successful.is_(None),
-            dbmodels.OrderNotification.channel == channel,
-            dbmodels.OrderNotification.subscriber == subscriber,
+            dbmodels.Notification.id > (0 if cursor is None else cursor),
+            dbmodels.Notification.successful.is_(None),
+            dbmodels.Notification.channel == channel,
+            dbmodels.Notification.subscriber == subscriber,
         )
-        .order_by(dbmodels.OrderNotification.id.asc())
+        .order_by(dbmodels.Notification.id.asc())
         .limit(chunk_size)
         .all()
     )
@@ -146,10 +159,10 @@ def get_order_notifications(
 def update_order_notification(
     id: int,
     successful: bool,
-    report: str,
+    delivery_report: str,
     db: Session,
 ):
-    row = db.query(dbmodels.OrderNotification).filter_by(id=id).one()
-    row.successful = successful
-    row.report = report
+    _ = db.query(dbmodels.Notification).filter_by(id=id).one()
+    _.successful = successful
+    _.delivery_report = delivery_report
     db.commit()

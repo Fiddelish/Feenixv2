@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 echo "********* RWO Build Script *********"
 echo ""
@@ -41,8 +41,8 @@ echo "----- Building RWO Server and SDKs -----"
 cd server
 cp -R ../web3/blockchain/out/abi ./
 docker build -f Dockerfile.build . -t rwo_server_build:dev
-docker build . -t rwo_server:dev
 docker run --rm -v `pwd`/sdk:/opt/rwo/code/sdk rwo_server_build:dev ./generate_sdks_docker.sh
+docker build . -t rwo_server:dev
 cd ..
 echo "----- Building RWO Server and SDKs DONE -----"
 echo ""
