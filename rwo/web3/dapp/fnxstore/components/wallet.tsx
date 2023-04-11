@@ -165,6 +165,7 @@ export default function Wallet() {
                             font-semibold
                             uppercase
                             leading-tight
+                            tracking-wide
                             text-white
                             shadow-md
                             shadow-violet-900
@@ -190,6 +191,7 @@ export default function Wallet() {
                         font-semibold
                         uppercase
                         leading-tight
+                        tracking-wide
                         text-white
                         shadow-md
                         shadow-violet-900
