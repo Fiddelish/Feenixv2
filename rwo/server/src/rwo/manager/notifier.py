@@ -23,8 +23,8 @@ from rwo_py_sdk.apis import NotificationApi
 from rwo_py_sdk.models import UpdateNDSRequest, Notification
 
 DEVMODE = env_to_bool("RWO_DEVMODE")
-API_URL = os.getenv("RWO_API_URL", "http://localhost:5000")
-REDIS_URL = os.getenv("RWO_REDIS_URL")
+API_URL = os.getenv("RWO_API_SERVER", "http://localhost:5000")
+REDIS_URL = os.getenv("RWO_REDIS_URL", "redis://redis:6379")
 SMTP_SERVER = os.getenv("RWO_SMTP_SERVER", "localhost")
 SMTP_PORT = os.getenv("RWO_SMTP_PORT", "25")
 SMTP_LOCAL_FQDN = os.getenv("RWO_SMTP_LOCAL_FQDN", socket.getfqdn())

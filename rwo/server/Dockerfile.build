@@ -16,9 +16,13 @@ COPY sdk /opt/rwo/code/sdk
 COPY setup.py /opt/rwo/code/
 COPY VERSION.py /opt/rwo/code/
 COPY reinstall_rwo_server.sh /opt/rwo/code/
+COPY reinstall_py_sdk.sh /opt/rwo/code/
 COPY retrieve_api_spec.py /opt/rwo/code/
 COPY generate_sdks_docker.sh /opt/rwo/code/
 COPY openapitools.json /opt/rwo/code/
 RUN chmod ugo+x reinstall_rwo_server.sh
+RUN chmod ugo+x reinstall_py_sdk.sh
 RUN chmod ugo+x generate_sdks_docker.sh
 RUN ./reinstall_rwo_server.sh
+RUN ./generate_sdks_docker.sh
+RUN ./reinstall_py_sdk.sh
