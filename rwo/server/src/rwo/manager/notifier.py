@@ -7,15 +7,15 @@ import aiosmtplib
 import traceback
 import socket
 from aiosmtplib import errors as SMTPErrors, SMTPResponse
-import textwrap
 from datetime import datetime
 
 from email.mime.text import MIMEText
 from email.utils import make_msgid
-from jinja2 import Environment, BaseLoader
+from pathlib import Path
+from jinja2 import Environment, FileSystemLoader
 
 from rwo.common import logging as rwo_logging
-from rwo.common.utils import datetime_to_iso, mask_email, env_to_bool
+from rwo.common.utils import env_to_bool
 
 from rwo_py_sdk import ApiClient as RWOApiClient
 from rwo_py_sdk.configuration import Configuration as RWOConfiguration
@@ -38,55 +38,12 @@ EMAIL_RETRY_TIME = 60 * 5
 CHUNK_SIZE = 50
 
 
-def jinja2_iso_format_datetime(value, format="%H:%M %d-%m-%y"):
+def j2_iso_format_datetime(value, format="%H:%M %d-%m-%y"):
     return datetime.fromisoformat(value).strftime(format)
 
 
-jinja2_environment = Environment(loader=BaseLoader())
-jinja2_environment.filters["datetime_fmt"] = jinja2_iso_format_datetime
-
-jinja2_email_tmpl = {
-    "user": {
-        "subject": "RWO Order {{id}} status: {{status}}",
-        "body": textwrap.dedent(
-            """
-            Dear User,
-
-            Your order {{id}} status is {{ status }}
-            Created (UTC): {{ created_at|datetime_fmt("%Y-%m-%d %H:%M:%S") }}
-            Transaction ID: {{tx_id}}
-
-            Thank you for shopping with us!
-
-            This is an automated message. Please do not reply.
-            """
-        ),
-    },
-    "admin": {
-        "subject": "RWO ADMIN order {{id}} status: {{status}}",
-        "body": textwrap.dedent(
-            """
-            Dear Admin,
-
-            Order id: {{ id }}
-            Order status: {{ status }}
-            Created (UTC): {{ created_at }}
-            Updated (UTC): {{ updated_at }}
-
-            User email: {{email}}
-            User wallet: {{wallet}}
-            Product ID: {{product_id}}
-            Quantity: {{quantity}}
-            Transaction ID: {{tx_id}}
-            Transaction hash: {{tx_hash}}
-
-            Admin Token: {{token}}
-
-            kind regards
-            """
-        ),
-    },
-}
+j2_env = Environment()
+j2_env.filters["datetime_fmt"] = j2_iso_format_datetime
 
 api = NotificationApi(RWOApiClient(configuration=RWOConfiguration(host=API_URL)))
 logger = rwo_logging.init_logger(
@@ -96,9 +53,22 @@ redis_pool = None
 
 
 async def email_notify_thread(subscriber: str):
+    global logger
+    global redis_pool
+    global j2_env
+
+    assert len(j2_env.list_templates()) > 0
+    for tmpl in j2_env.list_templates():
+        logger.debug(f"j2 template: {tmpl}")
+
+    j2_subject_tmpl = j2_env.get_template(f"{subscriber}/subject.j2")
+    j2_body_tmpl = j2_env.get_template(f"{subscriber}/body.j2")
+
     async def process_pending_items(subscriber: str):
         global api
         global logger
+        nonlocal j2_subject_tmpl
+        nonlocal j2_body_tmpl
 
         cursor = None
         logger.debug(
@@ -158,16 +128,10 @@ async def email_notify_thread(subscriber: str):
                     response = await smtp_client.rcpt(_.recipient)
                     logger.debug(f"response: {response.code} {response.message}")
 
-                    message = MIMEText(
-                        jinja2_environment.from_string(
-                            jinja2_email_tmpl[subscriber]["body"]
-                        ).render(_.data)
-                    )
+                    message = MIMEText(j2_body_tmpl.render(_.data))
                     message["From"] = f"RWO Store <{SMTP_SENDER}>"
                     message["To"] = _.recipient
-                    message["Subject"] = jinja2_environment.from_string(
-                        jinja2_email_tmpl[subscriber]["subject"]
-                    ).render(_.data)
+                    message["Subject"] = j2_subject_tmpl.render(_.data)
                     message["Message-ID"] = make_msgid(
                         idstring=str(uuid.uuid4()), domain=SMTP_LOCAL_FQDN
                     )
@@ -214,9 +178,7 @@ async def email_notify_thread(subscriber: str):
 
         return
 
-    global logger
-    global redis_pool
-
+    ###
     if redis_pool is None:
         logger.info(f"no redis, one-shot mode")
         try:
@@ -255,6 +217,7 @@ async def email_notify_thread(subscriber: str):
 async def main():
     global logger
     global redis_pool
+    global j2_env
 
     if DEVMODE:
         logger.warn(f"running in DEVMODE")
@@ -270,6 +233,10 @@ async def main():
     if not REDIS_URL is None:
         logger.debug(f"using {REDIS_URL}")
         redis_pool = aioredis.ConnectionPool.from_url(REDIS_URL, decode_responses=True)
+
+    j2_base = str(Path(__file__).parent / "templates")
+    logger.debug(f"loading j2 templates from {j2_base}")
+    j2_env.loader = FileSystemLoader(j2_base)
 
     tasks = [
         asyncio.create_task(email_notify_thread("admin")),

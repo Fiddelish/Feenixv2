@@ -44,4 +44,9 @@ setup(
         rwoapi=rwo.main:run
         rwonotifier=rwo.manager.notifier:run
     """,
+    package_data={
+        NAME: [
+            "manager/templates/*/*.j2",
+        ]
+    },
 )
