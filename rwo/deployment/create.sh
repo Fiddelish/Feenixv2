@@ -11,5 +11,7 @@ docker network create --subnet ${RWO_NETWORK_SUBNET} rwo_network
 echo "Starting hugs services..."
 docker-compose --env-file .env -f docker-compose.yml up -d
 docker-compose --env-file .env -f docker-compose.yml ps
+docker-compose --env-file .env -f docker-compose-rwo.yml -p rwo up -d
+docker-compose --env-file .env -f docker-compose-rwo.yml -p rwo ps
 # ./certbot.sh certonly
 echo "Done!"
