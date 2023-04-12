@@ -3,16 +3,13 @@ import { ethers } from "hardhat";
 // const GAS_LIMIT: number = 1000000;
 
 async function main() {
-  const USDC_ADDRESS: string = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
-  console.log("Deploying Crypto Store");
-  const cryptoStoreFactory = await ethers.getContractFactory("CryptoStore");
-  const cryptoStore = await cryptoStoreFactory.deploy();
-  await cryptoStore.deployed();
-  console.log(`Crypto Store contract deployed to ${cryptoStore.address}`);
-  await cryptoStore.SetTokenAddress(USDC_ADDRESS);
-  console.log(`Crypto Store: set USDC address to ${USDC_ADDRESS}`);
-
+  const cryptoStore = await ethers.getContractAt(
+    "CryptoStore",
+    "0xaf25b82f9a1fB867967233D0700024C82910bFa1"
+  );
+  console.log(`Crypto Store contract attached to ${cryptoStore.address}`);
   const decimals = 6;
+
   let price = "12";
   let pid = await cryptoStore.GetProductID();
   let tx = await cryptoStore.AddProduct(
