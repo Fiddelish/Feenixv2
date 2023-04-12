@@ -1,8 +1,8 @@
 #!/bin/bash
 set -ex
 
-sudo rm -rf .data
-rm -rf certs/*
+# sudo rm -rf .data
+# rm -rf certs/*
 # mkdir -p $SSL_CERTS_FOLDER $CERTBOT_FOLDER $ACME_HTTP01_FOLDER
 source .env
 [[ -d venv ]] && source venv/bin/activate
