@@ -12,7 +12,7 @@ services:
       - RWO_DB_PASSWORD=${RWO_DB_PASSWORD}
       - RWO_DB_SERVER=rwodb:5432
       - RWO_DB=${RWO_DB}
-      - REDIS_SERVER_URL=redis://redis:6379
+      - RWO_REDIS_URL=redis://redis:6379
       - RWO_API_SERVER=http://localhost:5000
       - EXTRA_CORS_ORIGINS=https://${COMMON_NAME}
       - WEB3_HTTP_PROVIDER=${WEB3_HTTP_PROVIDER}
@@ -25,15 +25,13 @@ services:
   rwonotifier:
     image: rwo_server:dev
     restart: on-failure
-    ports:
-      - "15500:5000"
     environment:
       - RWO_HOME=.
       - RWO_DB_USER=${RWO_DB_USER}
       - RWO_DB_PASSWORD=${RWO_DB_PASSWORD}
       - RWO_DB_SERVER=rwodb:5432
       - RWO_DB=${RWO_DB}
-      - REDIS_SERVER_URL=redis://redis:6379
+      - RWO_REDIS_URL=redis://redis:6379
       - RWO_API_SERVER=http://rwoapi:5000
       - EXTRA_CORS_ORIGINS=https://${COMMON_NAME}
       - WEB3_HTTP_PROVIDER=${WEB3_HTTP_PROVIDER}

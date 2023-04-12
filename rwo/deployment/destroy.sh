@@ -1,6 +1,7 @@
 #!/bin/bash
 set -ex
 
+docker-compose --env-file .env -f docker-compose-rwo.yml -p rwo down -v
 docker-compose --env-file .env -f docker-compose.yml down -v
 docker network rm rwo_network
 
@@ -8,4 +9,4 @@ docker network rm rwo_network
 source .env
 # ./certbot.sh unregister
 
-sudo rm -rf .data
+# sudo rm -rf .data
