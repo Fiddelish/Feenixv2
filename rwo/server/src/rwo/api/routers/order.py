@@ -150,7 +150,7 @@ async def fulfill_order(
             "product_id": order.product_id,
             "product_name": product.name,
             "status": OrderStatus.fulfilled.value,
-            "tx_id": vopr.tx_id,
+            "tx_id": ffor.tx_id,
             "created_at": order.created_at
         }
     )
