@@ -7,6 +7,7 @@ import { getCryptoStoreContract } from "@/contract_wrappers/contracts";
 import Image from "next/image";
 import Modal from "react-modal";
 import Buy from "./buy";
+import { FancyPrice } from "./price";
 import { toJSNumberString } from "./currency";
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -27,12 +28,10 @@ export default function ProductCard({ product }: { product: Product }) {
             decimals: cryptoStoreContract.GetTokenDecimals(),
             productPrice: cryptoStoreContract.productPrices(product.id),
             totalFees: cryptoStoreContract.TotalFees(),
-        }).subscribe(
-            data => {
-                setPrice(toJSNumberString(data.productPrice as BigNumber, data.decimals as number));
-                setTotalFees((data.totalFees as BigNumber).toString());
-            }
-        );
+        }).subscribe((data) => {
+            setPrice(toJSNumberString(data.productPrice as BigNumber, data.decimals as number));
+            setTotalFees((data.totalFees as BigNumber).toString());
+        });
     }
 
     function openModal() {
@@ -71,24 +70,22 @@ export default function ProductCard({ product }: { product: Product }) {
                 {active && (
                     <div className="flex w-full justify-center">
                         <button
-                            className="w-40 rounded-md
+                            className="pointer-events-none w-40
+                            rounded-md
                             bg-violet-500
-                            py-2
-                            px-4 font-bold text-white shadow-md shadow-violet-900 hover:bg-violet-600 focus:ring-0 focus:ring-offset-0 disabled:bg-gray-400 disabled:shadow-gray-900 disabled:shadow-sm active:shadow-sm active:shadow-violet-900"
+                            py-2 px-4 font-bold text-white shadow-md shadow-violet-900 hover:bg-violet-600 focus:ring-0 focus:ring-offset-0 active:shadow-sm active:shadow-violet-900 disabled:bg-gray-400 disabled:shadow-sm disabled:shadow-gray-900"
                             onClick={openModal}
                             disabled={!active}
                         >
-                            {price} USDC
+                            <FancyPrice price={price} currency="USDC" />
                         </button>
                     </div>
                 )}
                 {!active && (
                     <div className="flex w-full justify-center">
-                        <p
-                            className="w-40 py-2 px-4 font-bold"
-                        >
-                            Connect wallet to see prices
-                        </p>
+                        <div className="mb-2 w-40 rounded-md bg-gray-400 px-4 py-2 text-center font-bold text-white">
+                            -- USDC
+                        </div>
                     </div>
                 )}
             </div>
