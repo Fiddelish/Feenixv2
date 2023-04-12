@@ -7,8 +7,8 @@ ARG PARALLELISM=1
 ENV LC_CTYPE en_US.UTF-8
 ENV LANG en_US.UTF-8
 
-ENV HUGS_HOME /opt/hugs
 ENV DEBIAN_FRONTEND noninteractive
+ENV RWO_HOME /opt/rwo
 
 COPY ./keyboard /etc/default/keyboard
 
@@ -45,7 +45,7 @@ RUN apt-get -y update && \
             wget \
             yasm
 
-WORKDIR /opt/hugs
+WORKDIR /opt/rwo
 
 # Set the locale
 RUN apt-get install -y locales
