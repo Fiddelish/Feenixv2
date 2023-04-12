@@ -70,10 +70,10 @@ export default function ProductCard({ product }: { product: Product }) {
                 {active && (
                     <div className="flex w-full justify-center">
                         <button
-                            className="w-40
-                            rounded-md
+                            className="w-40 rounded-md
                             bg-violet-500
-                            py-2 px-4 font-bold text-white shadow-md shadow-violet-900 hover:bg-violet-600 focus:ring-0 focus:ring-offset-0 active:shadow-sm active:shadow-violet-900 disabled:bg-gray-400 disabled:shadow-sm disabled:shadow-gray-900"
+                            py-2
+                            px-4 font-bold text-white shadow-md shadow-violet-900 hover:bg-violet-600 focus:outline-0 active:shadow-sm active:shadow-violet-900 disabled:bg-gray-400 disabled:shadow-sm disabled:shadow-gray-900"
                             onClick={openModal}
                             disabled={!active}
                         >
