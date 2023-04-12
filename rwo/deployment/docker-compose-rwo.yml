@@ -18,6 +18,8 @@ services:
       - WEB3_HTTP_PROVIDER=${WEB3_HTTP_PROVIDER}
       - CRYPTO_STORE_CONTRACT=${CRYPTO_STORE_CONTRACT}
       - ABI_PATH=/opt/rwo/abi
+      - RWO_PORTAL_URL=https://${COMMON_NAME}
+      - RWO_STORE_ADMIN_EMAIL=${STORE_ADMIN_EMAIL}
     command: rwoapi
     networks:
       - rwo_network
