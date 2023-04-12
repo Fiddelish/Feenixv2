@@ -76,6 +76,7 @@ async def verify_order(
     order.tx_hash = vopr.tx_hash
     order.status = OrderStatus.paid.value
     crud.add_order(order, db)
+    product = crud.get_product_by_id(order.product_id, db)
     await notification.create(
         db=db,
         redis=redis,
@@ -84,6 +85,7 @@ async def verify_order(
         recipient=order.email,
         data={
             "product_id": order.product_id,
+            "product_name": product.name,
             "status": OrderStatus.paid.value,
             "tx_id": vopr.tx_id,
             "created_at": order.created_at
@@ -96,7 +98,7 @@ async def verify_order(
         subscriber="admin",
         channel="email",
         recipient=RWO_STORE_ADMIN_EMAIL,
-        data={ **my_order.dict(), "portal_url": RWO_PORTAL_URL }
+        data={ **my_order.dict(), "product_name": product.name, "portal_url": RWO_PORTAL_URL }
     )
     return VerifyOrderPaymentResponse(verified=True)
 
@@ -123,8 +125,10 @@ def retrieve_order(ror: RetrieveOrderRequest, db: Session = Depends(get_db_sessi
 @router.post(
     "/fulfill", operation_id="fulfill_order", response_model=FulfillOrderResponse
 )
-@rollback_error500()
-def fulfill_order(ffor: FulfillOrderRequest, db: Session = Depends(get_db_session)):
+@async_rollback_error500()
+async def fulfill_order(
+    ffor: FulfillOrderRequest, db: Session = Depends(get_db_session), redis: aioredis.Redis = Depends(get_redis)
+):
     order = crud.get_order_by_tx_id_with_lock(ffor.tx_id, db)
     resp = FulfillOrderResponse(fulfilled=False)
     if (
@@ -135,5 +139,29 @@ def fulfill_order(ffor: FulfillOrderRequest, db: Session = Depends(get_db_sessio
         return resp
     order.status = OrderStatus.fulfilled.value
     crud.add_order(order, db)
+    product = crud.get_product_by_id(order.product_id, db)
+    await notification.create(
+        db=db,
+        redis=redis,
+        subscriber="user",
+        channel="email",
+        recipient=order.email,
+        data={
+            "product_id": order.product_id,
+            "product_name": product.name,
+            "status": OrderStatus.fulfilled.value,
+            "tx_id": vopr.tx_id,
+            "created_at": order.created_at
+        }
+    )
+    my_order = Order.from_orm(order)
+    await notification.create(
+        db=db,
+        redis=redis,
+        subscriber="admin",
+        channel="email",
+        recipient=RWO_STORE_ADMIN_EMAIL,
+        data={ **my_order.dict(), "product_name": product.name, "portal_url": RWO_PORTAL_URL }
+    )
     resp.fulfilled = True
     return resp
