@@ -9,7 +9,7 @@ export default function OrderPage() {
     if (!tx_id || !token) {
         return (
             <>
-                <p>Invalid order details</p>
+                <p></p>
             </>
         );
     }
