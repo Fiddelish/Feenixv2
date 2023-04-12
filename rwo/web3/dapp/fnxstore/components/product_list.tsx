@@ -17,7 +17,7 @@ export default function ProductList() {
         });
     }, []);
     return (
-        <div className="flex flex-wrap">
+        <div className="flex flex-wrap place-content-evenly">
             {!isLoading && products.map((p) => <ProductCard key={p.id} product={p} />)}
             {isLoading && <p>Loading...</p>}
         </div>

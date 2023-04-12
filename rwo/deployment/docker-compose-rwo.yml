@@ -12,13 +12,41 @@ services:
       - RWO_DB_PASSWORD=${RWO_DB_PASSWORD}
       - RWO_DB_SERVER=rwodb:5432
       - RWO_DB=${RWO_DB}
-      - REDIS_SERVER=redis:6379
+      - REDIS_SERVER_URL=redis://redis:6379
       - RWO_API_SERVER=http://localhost:5000
       - EXTRA_CORS_ORIGINS=https://${COMMON_NAME}
       - WEB3_HTTP_PROVIDER=${WEB3_HTTP_PROVIDER}
       - CRYPTO_STORE_CONTRACT=${CRYPTO_STORE_CONTRACT}
       - ABI_PATH=/opt/rwo/abi
     command: rwoapi
+    networks:
+      - rwo_network
+
+  rwonotifier:
+    image: rwo_server:dev
+    restart: on-failure
+    ports:
+      - "15500:5000"
+    environment:
+      - RWO_HOME=.
+      - RWO_DB_USER=${RWO_DB_USER}
+      - RWO_DB_PASSWORD=${RWO_DB_PASSWORD}
+      - RWO_DB_SERVER=rwodb:5432
+      - RWO_DB=${RWO_DB}
+      - REDIS_SERVER_URL=redis://redis:6379
+      - RWO_API_SERVER=http://rwoapi:5000
+      - EXTRA_CORS_ORIGINS=https://${COMMON_NAME}
+      - WEB3_HTTP_PROVIDER=${WEB3_HTTP_PROVIDER}
+      - CRYPTO_STORE_CONTRACT=${CRYPTO_STORE_CONTRACT}
+      - ABI_PATH=/opt/rwo/abi
+      - RWO_SMTP_SERVER=smtp-relay.gmail.com
+      - RWO_SMTP_PORT=587
+      - RWO_SMTP_LOCAL_FQDN=${COMMON_NAME}
+      - RWO_SMTP_SENDER=${SMTP_SENDER}
+      - RWO_SMTP_USER=${SMTP_USER}
+      - RWO_SMTP_PASSWORD=${SMTP_PASSWORD}
+      - RWO_STORE_ADMIN_EMAIL=${STORE_ADMIN_EMAIL}
+    command: rwonotifier
     networks:
       - rwo_network
 
