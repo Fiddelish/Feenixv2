@@ -211,7 +211,7 @@ export default function Wallet() {
                 )}
                 {!account ? (
                     <div className="flex flex-row items-center gap-x-2 py-2">
-                        <span className="text-sm">Supports</span>
+                        <span className="text-xs">Supports</span>
                         <Image src="/images/mm.png" alt="Metamask Logo" width={25} height={25} />
                         <Image src="/images/cbw.png" alt="Coinbase Logo" width={25} height={25} />
                     </div>
