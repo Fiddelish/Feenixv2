@@ -195,6 +195,13 @@ async def email_notify_thread(subscriber: str):
 
     while True:
         try:
+            await process_pending_items(subscriber)
+        except Exception as e:
+            logger.debug(f"error: {e}, sleeping for {EMAIL_RETRY_TIME}s before retry")
+            await asyncio.sleep(EMAIL_RETRY_TIME)
+            await redis.lpush(queue, "retry")
+
+        try:
             await redis.ping()
             logger.debug(f"waiting {queue} for max {QUEUE_GUARD_TIMEOUT}s")
             item = await redis.brpop(queue, QUEUE_GUARD_TIMEOUT)
@@ -205,13 +212,6 @@ async def email_notify_thread(subscriber: str):
             logger.error(f"redis failed: {e}")
             logger.warning(f"polling mode with timeout={QUEUE_GUARD_TIMEOUT}s")
             asyncio.sleep(QUEUE_GUARD_TIMEOUT)
-
-        try:
-            await process_pending_items(subscriber)
-        except Exception as e:
-            logger.debug(f"error: {e}, sleeping for {EMAIL_RETRY_TIME}s before retry")
-            await asyncio.sleep(EMAIL_RETRY_TIME)
-            await redis.lpush(queue, "retry")
 
 
 async def main():
