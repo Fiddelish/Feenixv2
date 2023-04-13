@@ -22,9 +22,7 @@ function MyApp({ Component, pageProps, ...appProps }: AppProps) {
                 </Web3ReactProvider>
             )}
             {!isWeb3Needed && (
-                <Layout>
-                    <Component {...pageProps} />
-                </Layout>
+                <Component {...pageProps} />
             )}
         </>
     );
