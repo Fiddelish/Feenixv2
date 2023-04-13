@@ -3,5 +3,6 @@ from rwo.db.database import engine, DBSession
 
 try:
     models.Base.metadata.drop_all(bind=engine)
-except:
+except Exception as e:
+    print(e)
     pass

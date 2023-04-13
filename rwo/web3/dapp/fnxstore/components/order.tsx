@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
 import { getOrderApi } from "./api/order";
 import { getProductApi } from "./api/product";
-import { combineLatest } from "rxjs";
+import { combineLatest, catchError } from "rxjs";
 import {
     Order, OrderStatus, Product,
     RetrieveOrderRequest, RetrieveOrderResponse,
@@ -13,6 +13,7 @@ import {
 } from "@/contract_wrappers/contracts";
 import { BigNumber } from "ethers";
 import { toJSNumberString } from "./currency";
+import { setDefaultResultOrder } from "dns";
 
 export default function ProductList(
     { txId, token }:
@@ -21,6 +22,7 @@ export default function ProductList(
             token: string
         }
 ) {
+    const { active } = useWeb3React();
     const [isVerified, setVerified] = useState(false);
     const [order, setOrder] = useState<Order>();
     const [product, setProduct] = useState<Product>();
@@ -67,8 +69,10 @@ export default function ProductList(
     }
 
     useEffect(() => {
-        retrieveData();
-    }, []);
+        if (active) {
+            retrieveData();
+        }
+    }, [active]);
 
     async function markAsFulfilled() {
         if (!order) {
@@ -92,7 +96,8 @@ export default function ProductList(
     }
     return (
         <>
-            {isVerified && (order !== undefined) && (product !== undefined) && (
+            {!active && (<p>Please connect your wallet</p>)}
+            {active && (order !== undefined) && (product !== undefined) && isVerified && (
                 <div>
                     <div>
                         <table
