@@ -129,6 +129,7 @@ async def email_notify_thread(subscriber: str):
                     logger.debug(f"response: {response.code} {response.message}")
 
                     message = MIMEText(j2_body_tmpl.render(_.data))
+                    # TODO fix hardcoded from
                     message["From"] = f"RWO Store <{SMTP_SENDER}>"
                     message["To"] = _.recipient
                     message["Subject"] = j2_subject_tmpl.render(_.data)
@@ -197,7 +198,7 @@ async def email_notify_thread(subscriber: str):
         try:
             await process_pending_items(subscriber)
         except Exception as e:
-            logger.debug(f"error: {e}, sleeping for {EMAIL_RETRY_TIME}s before retry")
+            logger.error(f"error: {e}, sleeping for {EMAIL_RETRY_TIME}s before retry")
             await asyncio.sleep(EMAIL_RETRY_TIME)
             await redis.lpush(queue, "retry")
 
@@ -209,7 +210,7 @@ async def email_notify_thread(subscriber: str):
                 await redis.ltrim(queue, 1, 0)
             logger.debug(f"woke up by {queue}")
         except Exception as e:
-            logger.error(f"redis failed: {e}")
+            logger.error(f"redis failure: {e}")
             logger.error(f"fallback to poll mode, sleeping for {QUEUE_GUARD_TIMEOUT}s")
             asyncio.sleep(QUEUE_GUARD_TIMEOUT)
 
