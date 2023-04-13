@@ -39,6 +39,7 @@ services:
       - WEB3_HTTP_PROVIDER=${WEB3_HTTP_PROVIDER}
       - CRYPTO_STORE_CONTRACT=${CRYPTO_STORE_CONTRACT}
       - ABI_PATH=/opt/rwo/abi
+      - RWO_DEVMODE=${RWO_DEVMODE}
       - RWO_SMTP_SERVER=smtp-relay.gmail.com
       - RWO_SMTP_PORT=587
       - RWO_SMTP_LOCAL_FQDN=${COMMON_NAME}
@@ -46,6 +47,8 @@ services:
       - RWO_SMTP_USER=${SMTP_USER}
       - RWO_SMTP_PASSWORD=${SMTP_PASSWORD}
       - RWO_STORE_ADMIN_EMAIL=${STORE_ADMIN_EMAIL}
+    depends_on:
+      - rwoapi
     command: rwonotifier
     networks:
       - rwo_network
