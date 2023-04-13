@@ -6,6 +6,7 @@ WORKDIR /opt/rwo
 COPY --from=build /opt/rwo/venv /opt/rwo/venv/
 COPY abi /opt/rwo/abi
 COPY create_db.py /opt/rwo/
+COPY check_api.py /opt/rwo/
 COPY entrypoint.sh /opt/rwo/
 RUN chmod ugo+x /opt/rwo/entrypoint.sh
 ENV ABI_PATH /opt/rwo/abi

@@ -47,6 +47,7 @@ services:
       - RWO_SMTP_USER=${SMTP_USER}
       - RWO_SMTP_PASSWORD=${SMTP_PASSWORD}
       - RWO_STORE_ADMIN_EMAIL=${STORE_ADMIN_EMAIL}
+      - RWO_CHECK_API=yes
     depends_on:
       - rwoapi
     command: rwonotifier
