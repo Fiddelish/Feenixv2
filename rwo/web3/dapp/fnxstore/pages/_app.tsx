@@ -11,7 +11,7 @@ const getLibrary = (provider: any) => {
 
 function MyApp({ Component, pageProps, ...appProps }: AppProps) {
     const isWeb3Needed = [`/order`].includes(appProps.router.pathname);
-
+    console.log(isWeb3Needed);
     return (
         <>
             {isWeb3Needed && (
