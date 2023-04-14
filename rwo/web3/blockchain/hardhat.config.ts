@@ -76,7 +76,10 @@ const config: HardhatUserConfig = {
     currency: "USD",
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      polygonMumbai: process.env.POLYGON_API_KEY !== undefined ? process.env.POLYGON_API_KEY : "",
+      polygon: process.env.POLYGON_API_KEY !== undefined ? process.env.POLYGON_API_KEY : "",
+    }
   },
   paths: {
     sources: "./contracts",
