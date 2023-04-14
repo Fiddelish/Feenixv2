@@ -10,6 +10,7 @@ import { getCryptoStoreContract, getTokenContract, CRYPTO_STORE_CONTRACT } from 
 import { BigNumber, ContractTransaction, ContractReceipt } from "ethers";
 import { toJSNumberString } from "./currency";
 import { getOrderApi } from "./api/order";
+import { FancyPrice } from "./price";
 
 const validateEmail = (email: string) =>
     // eslint-disable-next-line no-useless-escape
@@ -96,25 +97,34 @@ export default function Buy({ product, close }: { product: Product; close: () =>
         async function purchase() {
             await purchaseProduct(email1);
         }
-        return email1Valid && email2Valid && email1 === email2 ? (
-            <button
-                className="w-full rounded-sm bg-violet-500 py-2
-                px-4 font-bold text-white hover:bg-violet-600 focus:outline-0
-                disabled:bg-gray-400 disabled:shadow-sm disabled:shadow-gray-900"
-                onClick={shouldApprove ? approve : purchase}
-                disabled={inTx}
-            >
-                {shouldApprove ? "Approve" : "Purchase for"} {productPrice} + fees ({totalFees}%) USDC
-            </button>
-        ) : (
-            <button
-                disabled
-                className="w-full rounded-sm bg-stone-500
-            py-2 px-4 font-bold text-white"
-            >
-                {!email1Valid ? "Need valid email..." : "... and email confirmation"}
-            </button>
-        );
+        if (email1Valid && email2Valid && email1 === email2) {
+            return (
+                <button
+                    className="w-full rounded-sm bg-violet-500 py-2 px-4 shadow-sm shadow-gray-900 hover:bg-violet-600 focus:outline-0 active:shadow-none disabled:bg-gray-400"
+                    onClick={shouldApprove ? approve : purchase}
+                    disabled={!!inTx}
+                >
+                    <div className="flex items-center justify-center gap-1 font-bold text-white">
+                        {!!inTx
+                            ? shouldApprove
+                                ? "Approving..."
+                                : "Purchasing..."
+                            : shouldApprove
+                            ? "Approve"
+                            : "Purchase"}
+                        {!!inTx && (
+                            <svg className="h-4 w-4 animate-spin rounded-full border-4 border-solid border-current border-r-transparent" />
+                        )}
+                    </div>
+                </button>
+            );
+        } else {
+            return (
+                <button disabled className="w-full rounded-sm bg-stone-500 py-2 px-4 font-bold text-white shadow-sm">
+                    {!email1Valid ? "Need valid email..." : "... and email confirmation"}
+                </button>
+            );
+        }
     }
 
     function UserIcon({ id }: { id: string }) {
@@ -128,12 +138,13 @@ export default function Buy({ product, close }: { product: Product; close: () =>
     function EmailInput({ id }: { id: string }) {
         const { register } = useFormContext();
         return (
-            <div className="flex flex-row rounded-sm border bg-white px-2 py-1">
+            <div className="flex w-72 flex-row rounded-sm border bg-white py-1 pl-1">
                 <UserIcon id={id} />
                 <input
                     type="text"
+                    disabled={!!inTx}
                     placeholder="user@example.com"
-                    className="ml-1 w-40 pl-1 focus:outline-0"
+                    className="ml-1 w-full pl-1 focus:outline-0 disabled:bg-transparent"
                     {...register(id, {
                         required: true,
                         validate: (email) => {
@@ -182,27 +193,29 @@ export default function Buy({ product, close }: { product: Product; close: () =>
         <div className="flex flex-col items-center">
             <Image
                 priority
-                className="h-48 w-80 border object-cover"
+                className="h-48 w-80 rounded-md border object-cover"
                 width={0}
                 height={0}
                 sizes="100vw"
                 src={`/images/${product.id}.png`}
                 alt=""
             />
-            <div className="my-2 px-8 py-2">
+            <div className="my-2 px-8">
                 <div className="text-xl font-bold">{product.name}</div>
-                <div className="text-md ">{product.description}</div>
-                <div className="text-md ">
-                    {productPrice} USDC + fees ({totalFees}%)
+                <div className="text-sm ">{product.description}</div>
+                <div className="text-md mt-2">
+                    <span className="font-bold">
+                        Total: <FancyPrice price={productPrice} currency="USDC" /> + {totalFees}% fees
+                    </span>
                 </div>
             </div>
             <FormProvider {...formMethods}>
                 <form onSubmit={handleSubmit((data) => {})}>
-                    <div className="mb-2 gap-1 sm:columns-2">
+                    <div className="rows-2 mb-2 space-y-1">
                         <EmailInput id="email1" />
                         <EmailInput id="email2" />
                     </div>
-                    <div className="flex w-full">
+                    <div className="justify-center">
                         <ActionButton />
                     </div>
                 </form>
