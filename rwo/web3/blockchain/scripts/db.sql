@@ -14,3 +14,4 @@ insert into product values(13, 'AirBNB 150', 'Giftcard', 1);
 insert into product values(14, 'AirBNB 250', 'Giftcard', 1);
 insert into product values(15, 'AirBNB 400', 'Giftcard', 1);
 insert into product values(16, 'AirBNB 500', 'Giftcard', 1);
+insert into product values(17 'TEST', 'Test product', 1);
