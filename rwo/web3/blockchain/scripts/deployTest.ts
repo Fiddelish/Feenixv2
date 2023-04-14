@@ -26,30 +26,150 @@ async function main() {
   await cryptoStore.SetTokenAddress(randomToken.address);
   console.log("Crypto Store: token address set");
 
+  let price = "12";
   let pid = await cryptoStore.GetProductID();
-  let tx = await cryptoStore.AddProduct(pid, ethers.utils.parseUnits("150", decimals));
+  let tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
   await tx.wait();
-  console.log(`Added product ${pid}`);
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "36";
   pid = await cryptoStore.GetProductID();
-  tx = await cryptoStore.AddProduct(pid, ethers.utils.parseUnits("100", decimals));
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
   await tx.wait();
-  console.log(`Added product ${pid}`);
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "66";
   pid = await cryptoStore.GetProductID();
-  tx = await cryptoStore.AddProduct(pid, ethers.utils.parseUnits("10", decimals));
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
   await tx.wait();
-  console.log(`Added product ${pid}`);
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "28.50";
   pid = await cryptoStore.GetProductID();
-  tx = await cryptoStore.AddProduct(pid, ethers.utils.parseUnits("25", decimals));
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
   await tx.wait();
-  console.log(`Added product ${pid}`);
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "56";
   pid = await cryptoStore.GetProductID();
-  tx = await cryptoStore.AddProduct(pid, ethers.utils.parseUnits("30", decimals));
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
   await tx.wait();
-  console.log(`Added product ${pid}`);
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "82";
   pid = await cryptoStore.GetProductID();
-  tx = await cryptoStore.AddProduct(pid, ethers.utils.parseUnits("20", decimals));
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
   await tx.wait();
-  console.log(`Added product ${pid}`);
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "115";
+  pid = await cryptoStore.GetProductID();
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
+  await tx.wait();
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "26";
+  pid = await cryptoStore.GetProductID();
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
+  await tx.wait();
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "56";
+  pid = await cryptoStore.GetProductID();
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
+  await tx.wait();
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "56";
+  pid = await cryptoStore.GetProductID();
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
+  await tx.wait();
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "115";
+  pid = await cryptoStore.GetProductID();
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
+  await tx.wait();
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "56";
+  pid = await cryptoStore.GetProductID();
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
+  await tx.wait();
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "165";
+  pid = await cryptoStore.GetProductID();
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
+  await tx.wait();
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "275";
+  pid = await cryptoStore.GetProductID();
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
+  await tx.wait();
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "425";
+  pid = await cryptoStore.GetProductID();
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
+  await tx.wait();
+  console.log(`Added product ${pid}; price: ${price}`);
+
+  price = "535";
+  pid = await cryptoStore.GetProductID();
+  tx = await cryptoStore.AddProduct(
+    pid,
+    ethers.utils.parseUnits(price, decimals)
+  );
+  await tx.wait();
+  console.log(`Added product ${pid}; price: ${price}`);
+
   tx = await cryptoStore.UpdateDev1Wallet(dev1);
   await tx.wait();
   console.log(`Updated dev1 wallet: ${dev1}`);
