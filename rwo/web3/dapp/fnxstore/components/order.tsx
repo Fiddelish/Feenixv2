@@ -64,6 +64,9 @@ export default function ProductList(
                         setVerified(true);
                     }
                 );
+            },
+            (reason: any) => {
+                alert(`Unable to retrieve order: ${reason}`);
             }
         );
     }

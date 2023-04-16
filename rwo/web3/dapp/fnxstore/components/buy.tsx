@@ -35,11 +35,21 @@ export default function Buy({ product, close }: { product: Product; close: () =>
 
     async function approve() {
         setInTx(true);
-        const tokenContract = getTokenContract();
-        const txApproval: ContractTransaction = await tokenContract.approve(CRYPTO_STORE_CONTRACT, fullPrice);
-        await txApproval.wait();
-        updateApproval();
-        setInTx(false);
+        try {
+            const tokenContract = getTokenContract();
+            const txApproval: ContractTransaction = await (
+                tokenContract.approve(CRYPTO_STORE_CONTRACT, fullPrice).catch((error: any) => {
+                    alert(`Error approving funds: ${error.reason}`)
+                })
+            );
+            if (!txApproval) {
+                return;
+            }
+            await txApproval.wait();
+        } finally {
+            updateApproval();
+            setInTx(false);
+        }
     }
 
     async function purchaseProduct(email: string) {
@@ -64,27 +74,40 @@ export default function Buy({ product, close }: { product: Product; close: () =>
             setInTx(false);
             return;
         }
-        const txId: string = resp.tx_id;
-        const cryptoStoreContract = getCryptoStoreContract();
-        const txPayment: ContractTransaction = await cryptoStoreContract.MakePayment(product.id, fullPrice, txId);
-        const txReceipt: ContractReceipt = await txPayment.wait();
-        const txHash = txReceipt.transactionHash;
-        const vopr: VerifyOrderPaymentRequest = {
-            tx_id: txId,
-            tx_hash: txHash,
-            amount: fullPrice.toNumber(),
-        };
-        orderApi
-            .verifyOrder(vopr)
-            .then(
-                (resp) => {
-                    alert(`Order verified: ${resp.data.verified}!`);
-                },
-                (reason) => {
-                    alert(`Order rejected: ${reason}`);
-                }
-            )
-            .finally(close);
+        try {
+            const txId: string = resp.tx_id;
+            const cryptoStoreContract = getCryptoStoreContract();
+            const txPayment: ContractTransaction = await (
+                cryptoStoreContract.MakePayment(product.id, fullPrice, txId).catch((error: any) => {
+                    alert(`Error making payment: ${error.reason}`);
+                })
+            );
+            if (!txPayment) {
+                return;
+            }
+            const txReceipt: ContractReceipt = await txPayment.wait();
+            const txHash = txReceipt.transactionHash;
+            const vopr: VerifyOrderPaymentRequest = {
+                tx_id: txId,
+                tx_hash: txHash,
+                amount: fullPrice.toNumber(),
+            };
+            orderApi
+                .verifyOrder(vopr)
+                .then(
+                    (resp) => {
+                        alert(`Order verified successfully!`);
+                    },
+                    (reason) => {
+                        alert(`Order rejected: ${reason}`);
+                    }
+                )
+                .finally(close);
+        }
+        finally {
+            updateApproval();
+            setInTx(false);
+        }
     }
 
     function ActionButton() {
