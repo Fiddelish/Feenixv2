@@ -59,9 +59,6 @@ services:
     restart: on-failure
     ports:
       - "15300:3000"
-    environment:
-      - NEXT_PUBLIC_CRYPTO_STORE_CONTRACT=${CRYPTO_STORE_CONTRACT}
-      - NEXT_PUBLIC_TOKEN_CONTRACT=${TOKEN_CONTRACT}
     networks:
       - rwo_network
 
