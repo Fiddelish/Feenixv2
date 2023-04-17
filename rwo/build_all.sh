@@ -65,7 +65,7 @@ cd dapp/fnxstore
 cp -R ../../blockchain/out/abi ./
 rm -rf rwo_ts_sdk
 cp -R ../../../server/sdk/ts/ ./rwo_ts_sdk
-cp env.${target} .env.prod
+cp env.${target} .env.production
 docker build . -t rwo_portal:dev
 cd ../../..
 echo "----- Building RWO Portal DONE -----"

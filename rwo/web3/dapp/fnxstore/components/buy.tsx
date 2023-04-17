@@ -74,40 +74,40 @@ export default function Buy({ product, close }: { product: Product; close: () =>
             setInTx(false);
             return;
         }
-        try {
-            const txId: string = resp.tx_id;
-            const cryptoStoreContract = getCryptoStoreContract();
-            const txPayment: ContractTransaction = await (
-                cryptoStoreContract.MakePayment(product.id, fullPrice, txId).catch((error: any) => {
-                    alert(`Error making payment: ${error.reason}`);
-                })
-            );
-            if (!txPayment) {
-                return;
-            }
-            const txReceipt: ContractReceipt = await txPayment.wait();
-            const txHash = txReceipt.transactionHash;
-            const vopr: VerifyOrderPaymentRequest = {
-                tx_id: txId,
-                tx_hash: txHash,
-                amount: fullPrice.toNumber(),
-            };
-            orderApi
-                .verifyOrder(vopr)
-                .then(
-                    (resp) => {
-                        alert(`Order verified successfully!`);
-                    },
-                    (reason) => {
-                        alert(`Order rejected: ${reason}`);
-                    }
-                )
-                .finally(close);
-        }
-        finally {
+        const txId: string = resp.tx_id;
+        const cryptoStoreContract = getCryptoStoreContract();
+        const txPayment: ContractTransaction = await (
+            cryptoStoreContract.MakePayment(product.id, fullPrice, txId).catch((error: any) => {
+                alert(`Error making payment: ${error.reason}`);
+            })
+        );
+        if (!txPayment) {
             updateApproval();
             setInTx(false);
+            return;
         }
+        const txReceipt: ContractReceipt = await txPayment.wait();
+        const txHash = txReceipt.transactionHash;
+        const vopr: VerifyOrderPaymentRequest = {
+            tx_id: txId,
+            tx_hash: txHash,
+            amount: fullPrice.toNumber(),
+        };
+        orderApi
+            .verifyOrder(vopr)
+            .then(
+                (resp) => {
+                    alert(`Order verified successfully!`);
+                },
+                (reason) => {
+                    alert(`Order rejected: ${reason}`);
+                }
+            )
+            .finally(() => {
+                updateApproval();
+                close();
+                setInTx(false);
+            });
     }
 
     function ActionButton() {
