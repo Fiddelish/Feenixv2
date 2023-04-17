@@ -5,6 +5,9 @@ services:
     restart: on-failure
     ports:
       - "15300:3000"
+    environment:
+      - NEXT_PUBLIC_CRYPTO_STORE_CONTRACT=0xeAd624980FF03dCcFD93CAAa47D5c61AdefBB737
+      - NEXT_PUBLIC_TOKEN_CONTRACT=0xA240c565Bf3029E55c1224cd65e748fdeBf69f7E
     volumes:
       # Mount the root folder that contains .git
       - .:/workspace:cached
@@ -27,7 +30,7 @@ services:
       - RWO_API_SERVER=http://localhost:5000
       - EXTRA_CORS_ORIGINS=http://localhost:3000
       - WEB3_HTTP_PROVIDER=https://polygon-mumbai.g.alchemy.com/v2/8MQ8BytdpPqO5kqDfOnO0uzEQZtYlz2a
-      - CRYPTO_STORE_CONTRACT=0xaf25b82f9a1fB867967233D0700024C82910bFa1
+      - CRYPTO_STORE_CONTRACT=0xeAd624980FF03dCcFD93CAAa47D5c61AdefBB737
       - ABI_PATH=/workspace/server/abi
       - RWO_DEVMODE=yes
       - RWO_SMTP_SERVER=smtp-relay.gmail.com
@@ -38,6 +41,7 @@ services:
       - RWO_SMTP_USER=yev@quantotto.io
       - RWO_SMTP_PASSWORD=xxx
       - RWO_STORE_ADMIN_EMAIL=yev@quantotto.io
+      - RWO_PORTAL_URL=http://localhost:3000
     volumes:
       # Mount the root folder that contains .git
       - .:/workspace:cached
