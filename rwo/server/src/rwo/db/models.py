@@ -54,6 +54,33 @@ class Order(Base):
     CheckConstraint("quantity > 0")
 
 
+class Dispute(Base):
+    __tablename__ = "dispute"
+    id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, ForeignKey("product.id"), nullable=False)
+    tx_hash = Column(String(255), nullable=False)
+    wallet = Column(String(255), nullable=False)
+    order_email = Column(String(255), nullable=True)
+    contact_email = Column(String(255), nullable=False)
+    challenge = Column(String(255), unique=True, nullable=False)
+    signature = Column(String(255), unique=True, nullable=True)
+    status = Column(String(32), nullable=False)
+    created_at = Column(
+        DateTime(timezone=True), nullable=False, default=datetime.utcnow()
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.utcnow(),
+        onupdate=datetime.utcnow(),
+    )
+    buyer_comments = Column(Text, nullable=True)
+    store_comments = Column(Text, nullable=True)
+    __table_args__ = (
+        Index("hashIDX", "tx_hash", unique=False),
+    )
+
+
 class Notification(Base):
     __tablename__ = "notification"
     id = Column(Integer, primary_key=True)
