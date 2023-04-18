@@ -11,6 +11,11 @@ class OrderStatus(str, Enum):
     cancelled = "cancelled"
     failed = "failed"
 
+class DisputeStatus(str, enum):
+    submitted = "submitted"
+    in_review = "in_review"
+    rejected = "rejected"
+    resolved = "resolved"
 
 class NotificationSubscriber(str, Enum):
     user = "user"
@@ -46,6 +51,25 @@ class Order(BaseModel):
 
     class Config:
         orm_mode = True
+
+class Dispute(BaseModel):
+    id: int
+    product_id: int
+    tx_hash: str
+    wallet: str
+    order_email: str
+    contact_email: str
+    challenge: str
+    signature: Optional[str] = Field(None, nullable=True)
+    status: DisputeStatus
+    created_at: datetime
+    updated_at: datetime
+    buyer_comments: str
+    store_comments: str
+
+    class Config:
+        orm_mode = True
+
 
 
 class Notification(BaseModel):
@@ -106,3 +130,35 @@ class FulfillOrderResponse(BaseModel):
 class UpdateNDSRequest(BaseModel):
     successful: Optional[bool] = Field(None, nullable=True)
     delivery_report: Optional[str] = Field(None, nullable=True)
+
+
+class SubmitDisputeRequest(BaseModel):
+    product_id: int
+    tx_hash: str
+    wallet: str
+    order_email: str
+    contact_email: str
+
+
+class SubmitDisputeResponse(BaseModel):
+    dispute_id: int
+    challenge: str
+
+
+class DisputeSignatureRequest(BaseModel):
+    dispute_id: int
+    signature: str
+
+
+class DisputeSignatureResponse(BaseModel):
+    accepted: bool
+    message: str
+
+class Challenge(BaseModel):
+    challenge_id: int
+    challenge: str
+
+class Signature(BaseModel):
+    challenge_id: str
+    wallet: str
+    signature: str
