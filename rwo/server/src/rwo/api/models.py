@@ -57,7 +57,7 @@ class Dispute(BaseModel):
     product_id: int
     tx_hash: str
     wallet: str
-    order_email: str
+    order_email: Optional[str] = Field(None, nullable=True)
     contact_email: str
     challenge: str
     signature: Optional[str] = Field(None, nullable=True)
